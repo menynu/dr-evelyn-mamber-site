@@ -1,0 +1,46 @@
+---
+import { getCopy } from "../content";
+import { clinic } from "../lib/config";
+import { localePath } from "../lib/paths";
+import { addressLine } from "../lib/public";
+import type { Locale } from "../lib/role";
+import { roleTitle } from "../lib/role";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getCopy(locale);
+const year = new Date().getFullYear();
+const name = locale === "he" ? clinic.doctorNameHe : clinic.doctorNameEn;
+---
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <strong>{name}</strong>
+      <p>{roleTitle(locale)}</p>
+      <p>{addressLine(locale)}</p>
+      <p><a class="ltr" href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a></p>
+    </div>
+    <nav aria-label={t.footerNavLabel}>
+      <ul class="footer-links">
+        {t.nav.map((item) => (
+          <li><a href={localePath(locale, item.path)}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <div>
+      <ul class="footer-links">
+        {t.footerLinks.map((item) => (
+          <li><a href={localePath(locale, item.path)}>{item.label}</a></li>
+        ))}
+      </ul>
+      {clinic.social.instagram && <p><a href={clinic.social.instagram}>Instagram</a></p>}
+      {clinic.social.facebook && <p><a href={clinic.social.facebook}>Facebook</a></p>}
+    </div>
+  </div>
+  <div class="container">
+    <p class="fine">{t.footerFine}</p>
+    <p class="fine">© {year} {name}. {t.rights}.</p>
+  </div>
+</footer>

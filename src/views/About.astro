@@ -1,0 +1,56 @@
+---
+import Breadcrumb from "../components/Breadcrumb.astro";
+import Icon from "../components/Icon.astro";
+import { getCopy } from "../content";
+import { clinic } from "../lib/config";
+import type { Locale } from "../lib/role";
+import Base from "../layouts/Base.astro";
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = getCopy(locale);
+const crumbs = [
+  { name: t.homeLabel, path: "/" },
+  { name: t.nav.find((item) => item.id === "about")?.label || "", path: "/about/" },
+];
+const affiliation = locale === "he" ? clinic.affiliationHe : clinic.affiliationEn;
+---
+<Base locale={locale} title={t.meta.about.title} description={t.meta.about.description} path="/about/" breadcrumbs={crumbs}>
+  <div class="container page-intro">
+    <Breadcrumb locale={locale} items={crumbs} />
+    <p class="kicker">{t.about.kicker}</p>
+    <h1>{t.about.title}</h1>
+    <p class="lede prose">{t.about.lede}</p>
+  </div>
+  <section class="section">
+    <div class="container">
+      <h2>{t.about.approachTitle}</h2>
+      <div class="cards-2">
+        {t.about.approach.map((item) => (
+          <article class="card">
+            <div class="icon-bubble"><Icon name="leaf" /></div>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+  {clinic.showAffiliation && (
+    <section class="section section-alt">
+      <div class="container prose">
+        <p class="kicker">{t.about.affiliationKicker}</p>
+        <h2>{t.about.affiliationTitle}</h2>
+        <p>{affiliation}</p>
+        <p class="note">{t.about.affiliationNote}</p>
+      </div>
+    </section>
+  )}
+  <section class="section">
+    <div class="container prose">
+      <h2>{t.about.factsTitle}</h2>
+      <p>{t.about.facts}</p>
+      {clinic.licenseNumber && <p>{t.about.licenseLabel}: <span class="ltr">{clinic.licenseNumber}</span></p>}
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,62 @@
+---
+import { getCopy } from "../content";
+import { clinic } from "../lib/config";
+import { localePath, samePath, switchLocalePath } from "../lib/paths";
+import type { Locale } from "../lib/role";
+import { roleTitle } from "../lib/role";
+import Icon from "./Icon.astro";
+
+interface Props {
+  locale: Locale;
+  pathname: string;
+}
+const { locale, pathname } = Astro.props;
+const t = getCopy(locale);
+const other: Locale = locale === "he" ? "en" : "he";
+const otherHref = switchLocalePath(pathname, other);
+const shortName = locale === "he" ? clinic.doctorShortHe : clinic.doctorShortEn;
+const fullName = locale === "he" ? clinic.doctorNameHe : clinic.doctorNameEn;
+---
+<a class="skip" href="#main">{t.skip}</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href={localePath(locale, "/")}>
+      <span class="brand-mark"><Icon name="tooth" /></span>
+      <span class="brand-text">
+        <span class="brand-name brand-name-short">{shortName}</span>
+        <span class="brand-name brand-name-full">{fullName}</span>
+        <span class="brand-role">{roleTitle(locale)}</span>
+      </span>
+    </a>
+    <nav id="site-nav" class="site-nav" data-nav aria-label={t.navLabel}>
+      {t.nav.map((item) => {
+        const href = localePath(locale, item.path);
+        const current = samePath(pathname, href);
+        return (
+          <a href={href} aria-current={current ? "page" : undefined}>{item.label}</a>
+        );
+      })}
+      <a class="nav-call" href={`tel:${clinic.phoneTel}`}>{t.call} <span class="ltr">{clinic.phoneDisplay}</span></a>
+    </nav>
+    <a class="lang-switch" href={otherHref} hreflang={other} lang={other}>
+      {other === "en" ? "EN" : "עב"}
+      <span class="sr-only">{other === "en" ? " English" : " עברית"}</span>
+    </a>
+    <a class="header-call" href={`tel:${clinic.phoneTel}`} aria-label={t.callAria}>
+      <Icon name="phone" />
+      <span class="header-call-label">{t.call}</span>
+    </a>
+    <button
+      class="menu-toggle"
+      type="button"
+      data-nav-toggle
+      aria-expanded="false"
+      aria-controls="site-nav"
+      data-label-open={t.menuOpen}
+      data-label-close={t.menuClose}
+    >
+      <span class="sr-only" data-nav-label>{t.menuOpen}</span>
+      <span class="menu-bars" aria-hidden="true"></span>
+    </button>
+  </div>
+</header>

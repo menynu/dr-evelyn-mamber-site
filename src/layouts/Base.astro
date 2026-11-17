@@ -1,0 +1,86 @@
+---
+import "../styles/global.css";
+import Bot from "../components/Bot.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import { getCopy } from "../content";
+import { clinic } from "../lib/config";
+import { absoluteUrl, localePath } from "../lib/paths";
+import type { Locale } from "../lib/role";
+import { buildSchema, jsonLdScript, type Crumb } from "../lib/schema";
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  path: string;
+  kind?: "home" | "contact" | "faq" | "article" | "page";
+  breadcrumbs?: Crumb[];
+  faq?: { q: string; a: string }[];
+  article?: { title: string; description: string };
+  noindex?: boolean;
+}
+
+const {
+  locale,
+  title,
+  description,
+  path,
+  kind = "page",
+  breadcrumbs = [],
+  faq,
+  article,
+  noindex = false,
+} = Astro.props;
+const t = getCopy(locale);
+const canonical = absoluteUrl(localePath(locale, path));
+const heUrl = absoluteUrl(localePath("he", path));
+const enUrl = absoluteUrl(localePath("en", path));
+const schema = buildSchema({ locale, path, title, description, kind, breadcrumbs, faq, article });
+const ogLocale = locale === "he" ? "he_IL" : "en_US";
+const ogAlt = locale === "he" ? "en_US" : "he_IL";
+---
+<!doctype html>
+<html lang={locale === "he" ? "he" : "en"} dir={locale === "he" ? "rtl" : "ltr"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={noindex ? "noindex, follow" : "index, follow"} />
+    <meta name="theme-color" content="#1c4f48" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="he-IL" href={heUrl} />
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="x-default" href={heUrl} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content={kind === "article" ? "article" : "website"} />
+    <meta property="og:site_name" content={clinic.doctorNameHe} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={ogAlt} />
+    <meta property="og:image" content={absoluteUrl("/og.png")} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absoluteUrl("/og.png")} />
+    <script type="application/ld+json" set:html={jsonLdScript(schema)} />
+  </head>
+  <body>
+    <Header locale={locale} pathname={Astro.url.pathname} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+    <Bot locale={locale} />
+    <noscript>
+      <p class="noscript-note">{t.footerFine} <a href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a></p>
+    </noscript>
+    <script type="module" src="/site.js"></script>
+  </body>
+</html>

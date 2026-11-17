@@ -1,0 +1,61 @@
+---
+import Breadcrumb from "../components/Breadcrumb.astro";
+import Icon from "../components/Icon.astro";
+import { getCopy, getFaq } from "../content";
+import { localePath } from "../lib/paths";
+import type { Locale } from "../lib/role";
+import Base from "../layouts/Base.astro";
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = getCopy(locale);
+const pack = getFaq(locale);
+const crumbs = [
+  { name: t.homeLabel, path: "/" },
+  { name: t.nav.find((item) => item.id === "faq")?.label || "", path: "/faq/" },
+];
+const topics = ["practical", "visit", "care", "urgent"] as const;
+---
+<Base
+  locale={locale}
+  title={t.meta.faq.title}
+  description={t.meta.faq.description}
+  path="/faq/"
+  kind="faq"
+  breadcrumbs={crumbs}
+  faq={pack.entries.map((entry) => ({ q: entry.q, a: entry.a }))}
+>
+  <div class="container page-intro">
+    <Breadcrumb locale={locale} items={crumbs} />
+    <p class="kicker">{t.faqPage.kicker}</p>
+    <h1>{t.faqPage.title}</h1>
+    <p class="lede">{t.faqPage.lede}</p>
+  </div>
+  <div class="section">
+    <div class="container stack">
+      {topics.map((topic) => {
+        const entries = pack.entries.filter((entry) => entry.topic === topic);
+        if (!entries.length) return null;
+        return (
+          <section aria-labelledby={`topic-${topic}`}>
+            <h2 id={`topic-${topic}`}>{t.faqPage.topics[topic]}</h2>
+            <div class="faq-list">
+              {entries.map((entry) => (
+                <details class="faq-item">
+                  <summary>
+                    {entry.q}
+                    <Icon name="chevron" />
+                  </summary>
+                  <div class="answer">
+                    <p>{entry.a}</p>
+                    {entry.href && <p><a href={localePath(locale, entry.href)}>{t.readMore}</a></p>}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  </div>
+</Base>

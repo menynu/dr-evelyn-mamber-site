@@ -1,0 +1,68 @@
+---
+import { getCopy, getFaq } from "../content";
+import { clinic } from "../lib/config";
+import { localePath } from "../lib/paths";
+import { whatsappHref } from "../lib/public";
+import type { Locale } from "../lib/role";
+import { jsonLdScript } from "../lib/schema";
+import Icon from "./Icon.astro";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getCopy(locale);
+const pack = getFaq(locale);
+const wa = whatsappHref(t.contact.genericWhatsapp);
+---
+<button class="bot-launcher" type="button" data-bot-open aria-expanded="false" aria-controls="bot-panel">
+  <span class="sr-only">{pack.ui.open}</span>
+  <Icon name="chat" />
+</button>
+<div
+  id="bot-panel"
+  class="bot-panel"
+  data-bot-panel
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="bot-title"
+  aria-describedby="bot-disclaimer"
+  tabindex="-1"
+  hidden
+  data-locale={locale}
+>
+  <div class="bot-head">
+    <h2 id="bot-title">{pack.ui.title}</h2>
+    <button type="button" data-bot-close>
+      <span class="sr-only">{pack.ui.close}</span>
+      <Icon name="close" />
+    </button>
+  </div>
+  <p id="bot-disclaimer" class="bot-disclaimer">{pack.ui.disclaimer}</p>
+  <div class="bot-log" data-bot-log aria-live="polite" aria-relevant="additions"></div>
+  <div class="quick-wrap">
+    {pack.quickReplies.map((item) => (
+      <button type="button" data-reply-id={item.id}>{item.label}</button>
+    ))}
+  </div>
+  <form class="composer" data-bot-form>
+    <label class="sr-only" for="bot-input">{pack.ui.inputLabel}</label>
+    <input id="bot-input" data-bot-input type="text" maxlength="300" autocomplete="off" placeholder={pack.ui.placeholder} />
+    <button type="submit">{pack.ui.send}</button>
+  </form>
+  <div class="bot-foot">
+    {wa && (
+      <a class="bot-wa" data-bot-wa href={wa} target="_blank" rel="noopener noreferrer">
+        {pack.ui.handoff}
+        <span class="sr-only">{t.newTab}</span>
+      </a>
+    )}
+    <a class="bot-call" href={`tel:${clinic.phoneTel}`}>{pack.ui.call} <span class="ltr">{clinic.phoneDisplay}</span></a>
+  </div>
+</div>
+<script id="faq-pack" type="application/json" set:html={jsonLdScript(pack)} />
+<script id="faq-paths" type="application/json" set:html={jsonLdScript({
+  prefix: locale === "en" ? "/en" : "",
+})} />
+<template id="faq-link-label">{pack.ui.linkLabel}</template>
+<span hidden data-locale-root={localePath(locale, "/")}></span>

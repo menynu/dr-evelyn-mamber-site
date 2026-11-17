@@ -1,0 +1,26 @@
+{
+  "name": "mamber-pediatric-dental",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0 --port 4391",
+    "build": "astro build",
+    "preview": "astro preview --host 0.0.0.0 --port 4392",
+    "check": "astro check",
+    "test": "node scripts/test-bot.mjs",
+    "verify": "node scripts/check-content.mjs && node scripts/test-bot.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.5",
+    "@fontsource/rubik": "^5.3.0",
+    "astro": "^7.4.12"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "typescript": "^5.9.3"
+  }
+}

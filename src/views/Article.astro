@@ -1,0 +1,63 @@
+---
+import Breadcrumb from "../components/Breadcrumb.astro";
+import { getCopy } from "../content";
+import { localePath } from "../lib/paths";
+import type { Locale } from "../lib/role";
+import Base from "../layouts/Base.astro";
+
+interface Props { locale: Locale; slug: string }
+const { locale, slug } = Astro.props;
+const t = getCopy(locale);
+const article = t.articles.find((item) => item.slug === slug);
+if (!article) throw new Error(`Missing article: ${slug}`);
+const path = `/tips/${article.slug}/`;
+const tipsLabel = t.nav.find((item) => item.id === "tips")?.label || "";
+const crumbs = [
+  { name: t.homeLabel, path: "/" },
+  { name: tipsLabel, path: "/tips/" },
+  { name: article.title, path },
+];
+const related = t.articles.filter((item) => item.slug !== article.slug);
+---
+<Base
+  locale={locale}
+  title={`${article.title} | ${t.meta.tips.title}`}
+  description={article.description}
+  path={path}
+  kind="article"
+  breadcrumbs={crumbs}
+  article={{ title: article.title, description: article.description }}
+>
+  <article class="container page-intro prose">
+    <Breadcrumb locale={locale} items={crumbs} />
+    <p class="kicker">{tipsLabel}</p>
+    <h1>{article.title}</h1>
+    <p class="tips-meta">{article.minutes} {t.minutes}</p>
+    <p class="disclaimer">{t.articleDisclaimer}</p>
+    {article.blocks.map((block) => {
+      if (block.type === "h2") return <h2>{block.text}</h2>;
+      if (block.type === "ul" && block.items) return (
+        <ul>
+          {block.items.map((item) => <li>{item}</li>)}
+        </ul>
+      );
+      if (block.type === "note") return <p class="note">{block.text}</p>;
+      return <p>{block.text}</p>;
+    })}
+    <p><a href={localePath(locale, "/tips/")}>{t.backToTips}</a></p>
+  </article>
+  <section class="section section-alt" aria-labelledby="related-title">
+    <div class="container">
+      <h2 id="related-title">{t.related}</h2>
+      <div class="cards-2">
+        {related.map((item) => (
+          <a class="card tips-card" href={localePath(locale, `/tips/${item.slug}/`)}>
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
+            <span>{t.readMore}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

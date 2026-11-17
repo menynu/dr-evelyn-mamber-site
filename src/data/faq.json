@@ -1,0 +1,364 @@
+{
+  "he": {
+    "ui": {
+      "title": "המענה של המרפאה",
+      "disclaimer": "זהו מענה אוטומטי. הוא עוזר בשעות, כתובת, קביעת תור ושאלות כלליות, ואינו נותן ייעוץ רפואי.",
+      "greeting": "שלום. כאן המענה האוטומטי של מרפאת {{doctor}}. אפשר לשאול על שעות, כתובת, ביקור ראשון וקביעת תור, או לבחור נושא. זה לא ייעוץ רפואי.",
+      "placeholder": "הקלידו שאלה",
+      "inputLabel": "הקלידו שאלה למענה האוטומטי",
+      "send": "שליחה",
+      "close": "סגירת המענה",
+      "open": "פתיחת המענה האוטומטי",
+      "handoff": "המשך לקביעת תור בוואטסאפ",
+      "call": "התקשרו למרפאה",
+      "fallback": "לא מצאתי תשובה מדויקת. אפשר לבחור נושא למטה, או להתקשר ל־{{phone}}. המענה אינו ייעוץ רפואי. אם אתם דואגים עכשיו, התקשרו ולא מחכים לצ׳אט.",
+      "linkLabel": "לעמוד באתר"
+    },
+    "quickReplies": [
+      { "id": "hours", "label": "שעות פעילות" },
+      { "id": "address", "label": "כתובת" },
+      { "id": "booking", "label": "קביעת תור" },
+      { "id": "first-visit", "label": "ביקור ראשון" },
+      { "id": "emergency", "label": "מקרה חירום" }
+    ],
+    "emergencyKeywords": [
+      "חירום",
+      "דחוף",
+      "דימום",
+      "מדמם",
+      "יש דם",
+      "נפיחות",
+      "חבלה",
+      "נחבל",
+      "שן נפלה",
+      "נפלה שן",
+      "נפלה לי שן",
+      "נעקרה",
+      "נשברה",
+      "שן שבורה",
+      "שבר בשן",
+      "מוגלה",
+      "קושי בנשימה",
+      "לא נושם",
+      "כאב חזק",
+      "כואב מאוד",
+      "כאב חד"
+    ],
+    "entries": [
+      {
+        "id": "hours",
+        "topic": "practical",
+        "keywords": ["שעות", "שעות פעילות", "מתי פתוח", "פתוחים", "מתי אתם", "שעת פתיחה"],
+        "q": "מה שעות הפעילות?",
+        "a": "{{hours}} לתיאום מתקשרים ל־{{phone}}."
+      },
+      {
+        "id": "address",
+        "topic": "practical",
+        "keywords": ["כתובת", "איפה", "מיקום", "הגעה", "ניווט", "מפה", "רחוב", "חזקיהו"],
+        "q": "מה הכתובת של המרפאה?",
+        "a": "המרפאה נמצאת ב{{address}}. לפני הביקור הראשון כדאי לאשר את הכתובת בטלפון {{phone}}."
+      },
+      {
+        "id": "booking",
+        "topic": "practical",
+        "keywords": ["תור", "לקבוע", "קביעת תור", "לתאם", "תיאום", "וואטסאפ", "ווצאפ", "whatsapp", "להתקשר"],
+        "q": "איך קובעים תור?",
+        "a": "מתקשרים ל־{{phone}} או שולחים הודעת וואטסאפ. בהודעה מספיקים שם ההורה, טלפון, גיל הילד או הילדה, וזמן מועדף. אין צורך לכתוב פרטים רפואיים."
+      },
+      {
+        "id": "access",
+        "topic": "practical",
+        "keywords": ["חניה", "חנייה", "עגלה", "כיסא גלגלים", "מעלית", "נגישות", "מדרגות", "גישה"],
+        "q": "יש חניה או גישה נוחה?",
+        "a": "{{access}}"
+      },
+      {
+        "id": "funds",
+        "topic": "practical",
+        "keywords": ["קופה", "קופת חולים", "כללית", "מכבי", "מאוחדת", "לאומית", "ביטוח"],
+        "q": "האם עובדים עם קופות החולים?",
+        "a": "{{funds}}"
+      },
+      {
+        "id": "languages",
+        "topic": "practical",
+        "keywords": ["אנגלית", "עברית", "שפה", "english", "language"],
+        "q": "אפשר באנגלית?",
+        "a": "האתר זמין בעברית ובאנגלית. שפת הביקור עצמו תלויה במה שסוכם עם המרפאה. אם יש העדפה, אומרים אותה בזמן קביעת התור, בטלפון {{phone}}."
+      },
+      {
+        "id": "payment",
+        "topic": "practical",
+        "keywords": ["מחיר", "עלות", "כמה עולה", "כמה זה עולה", "עולה", "תשלום", "מחירון", "יקר", "כסף"],
+        "q": "כמה עולה ביקור?",
+        "a": "באתר אין מחירון. את העלות מסבירים במרפאה לפני שמחליטים, בשפה ברורה. אפשר גם לשאול בטלפון כשקובעים תור."
+      },
+      {
+        "id": "first-visit",
+        "topic": "visit",
+        "keywords": ["ביקור ראשון", "ביקור הראשון", "הביקור הראשון", "גיל שנה", "שן ראשונה", "תינוק", "תינוקת", "מתי להגיע"],
+        "q": "מתי מגיעים לביקור ראשון?",
+        "a": "נהוג להגיע לבדיקה ראשונה עד גיל שנה, או בסמוך לבקיעת השן הראשונה. בביקור הראשון לרוב מכירים, בודקים לפי קצב הילד, ומסבירים להורים איך שומרים על השיניים בבית. לא תמיד מבצעים טיפול באותו יום.",
+        "href": "/tips/first-visit/"
+      },
+      {
+        "id": "expect",
+        "topic": "visit",
+        "keywords": ["מה קורה בביקור", "איך נראה הביקור", "מה בביקור", "מה עושים בביקור"],
+        "q": "מה קורה בביקור?",
+        "a": "מתחילים בשיחה עם ההורה והילד, מסבירים מה עומדים לראות, ובודקים בקצב שמתאים לילד. אם צריך טיפול, מסבירים אותו לפני שמתחילים. אם הילד לא משתף פעולה באותו יום, עוצרים ומחפשים דרך אחרת."
+      },
+      {
+        "id": "bring",
+        "topic": "visit",
+        "keywords": ["מה להביא", "להביא", "טפסים", "מסמכים"],
+        "q": "מה כדאי להביא?",
+        "a": "אם יש מסמך מקופת החולים שנוהגים להביא, מביאים אותו למרפאה. מידע רפואי שחשוב שהרופאה תדע נמסר במרפאה או בטלפון, לא בטופס שבאתר ולא בצ׳אט."
+      },
+      {
+        "id": "fearful",
+        "topic": "visit",
+        "keywords": ["פוחד", "פחד", "חרדה", "בוכה", "לא משתף", "מפחד"],
+        "q": "הילד פוחד מרופא שיניים. מה עושים?",
+        "a": "אומרים את זה כשקובעים את התור. אפשר להגיע לביקור היכרות קצר בלי טיפול. בבית מדברים פשוט: «סופרים שיניים». עדיף לא להבטיח שלא ירגישו דבר, ולא לספר סיפורי פחד."
+      },
+      {
+        "id": "parents",
+        "topic": "visit",
+        "keywords": ["ההורה נשאר", "להישאר בחדר", "אמא בחדר", "אבא בחדר", "נוכחות הורה"],
+        "q": "האם ההורה נשאר בחדר?",
+        "a": "בדרך כלל ההורה נוכח ושותף, במיוחד בגילאים הצעירים. אם צריך סדר אחר כדי שהילד ישתף פעולה, מדברים על זה במרפאה."
+      },
+      {
+        "id": "ages",
+        "topic": "visit",
+        "keywords": ["עד איזה גיל", "גילאים", "מתבגר", "תינוקות", "מגיל"],
+        "q": "באילו גילאים מטפלים?",
+        "a": "המרפאה מיועדת לילדים, מהשן הראשונה. אם אתם לא בטוחים שהגיל מתאים, שואלים בטלפון {{phone}} לפני שאתם מגיעים."
+      },
+      {
+        "id": "cleaning",
+        "topic": "care",
+        "keywords": ["ניקוי", "פלואוריד", "אבנית", "שיננית", "fluoride"],
+        "q": "האם עושים ניקוי ופלואוריד?",
+        "a": "ניקוי ופלואוריד נעשים לפי גיל ולפי מה שנראה בבדיקה. מה שמתאים לילד מסוים מחליטים בביקור, לא מראש באתר."
+      },
+      {
+        "id": "sealants",
+        "topic": "care",
+        "keywords": ["איטום", "חריצים", "סילנט", "sealant"],
+        "q": "מה זה איטום חריצים?",
+        "a": "ציפוי דק על חריצים בשיניים טוחנות, כדי להקשות על הצטברות חיידקים. שוקלים אותו אחרי בדיקה, לרוב בשיניים קבועות חדשות. זה לא תחליף לצחצוח."
+      },
+      {
+        "id": "fillings",
+        "topic": "care",
+        "keywords": ["סתימה", "סתימות", "עששת", "חור בשיניים", "חורים"],
+        "q": "האם מטפלים בעששת אצל ילדים?",
+        "a": "כן, אחרי בדיקה. אם מוצאים עששת, מסבירים להורים מה נראה ואילו אפשרויות קיימות. סתימה היא אחת האפשרויות. אין כאן הבטחה לתוצאה מסוימת."
+      },
+      {
+        "id": "brushing",
+        "topic": "care",
+        "keywords": ["צחצוח", "מברשת", "משחה", "לצחצח", "חוט דנטלי"],
+        "q": "איך מצחצחים לפי גיל?",
+        "a": "מהשן הראשונה מצחצחים פעמיים ביום עם משחת שיניים שמכילה פלואוריד, בכמות קטנה לפי הגיל. עד שהילד מצחצח היטב בעצמו, ההורה משלים. פירוט לפי גיל נמצא בעמוד להורים.",
+        "href": "/tips/brushing-by-age/"
+      },
+      {
+        "id": "pain",
+        "topic": "urgent",
+        "keywords": ["כאב", "כואב", "רגיש", "רגישות", "כואבת"],
+        "q": "יש כאב. מה עושים?",
+        "a": "הצ׳אט לא יכול לאבחן כאב. מתקשרים למרפאה ב־{{phone}} ומספרים מתי זה התחיל. אם הכאב חזק, יש נפיחות, דימום, או שאתם דואגים — זה מצב דחוף: מתקשרים עכשיו, ואם אין מענה פונים לחדר מיון או למד״א 101."
+      },
+      {
+        "id": "emergency",
+        "topic": "urgent",
+        "keywords": ["מקרה חירום", "חירום", "דחוף", "חבלה בשיניים"],
+        "q": "מה עושים במקרה דחוף?",
+        "a": "זה מידע כללי בלבד, לא ייעוץ רפואי. במקרה דחוף מתקשרים עכשיו למרפאה: {{phone}}. אם אין מענה, יש דימום משמעותי, נפיחות, קושי בבליעה או בנשימה, או שאתם דואגים — פונים לחדר מיון או למד״א 101. הסבר כללי על שן שנפגעה נמצא באתר, והוא לא תחליף לפנייה מיידית.",
+        "href": "/tips/knocked-out-tooth/"
+      }
+    ]
+  },
+  "en": {
+    "ui": {
+      "title": "Clinic assistant",
+      "disclaimer": "This is an automated assistant. It can help with hours, address, booking, and general questions. It does not give medical advice.",
+      "greeting": "Hello. This is the automated assistant for {{doctor}}'s clinic. You can ask about hours, the address, a first visit, or booking. This is not medical advice.",
+      "placeholder": "Type a question",
+      "inputLabel": "Type a question for the automated assistant",
+      "send": "Send",
+      "close": "Close the assistant",
+      "open": "Open the automated assistant",
+      "handoff": "Continue on WhatsApp to book",
+      "call": "Call the clinic",
+      "fallback": "I don't have an exact answer. Choose a topic below, or call {{phone}}. This assistant does not give medical advice. If you are worried now, call — don't wait on the chat.",
+      "linkLabel": "Open the page"
+    },
+    "quickReplies": [
+      { "id": "hours", "label": "Opening hours" },
+      { "id": "address", "label": "Address" },
+      { "id": "booking", "label": "Book a visit" },
+      { "id": "first-visit", "label": "First visit" },
+      { "id": "emergency", "label": "Emergency" }
+    ],
+    "emergencyKeywords": [
+      "emergency",
+      "urgent",
+      "bleeding",
+      "swelling",
+      "trauma",
+      "knocked out",
+      "knocked-out",
+      "tooth fell",
+      "tooth out",
+      "broken tooth",
+      "can't breathe",
+      "cannot breathe",
+      "difficulty breathing",
+      "severe pain",
+      "pus"
+    ],
+    "entries": [
+      {
+        "id": "hours",
+        "topic": "practical",
+        "keywords": ["hours", "opening", "open", "when are you", "schedule"],
+        "q": "What are the opening hours?",
+        "a": "{{hours}} To arrange a visit, call {{phone}}."
+      },
+      {
+        "id": "address",
+        "topic": "practical",
+        "keywords": ["address", "where", "location", "directions", "map", "street"],
+        "q": "What is the clinic address?",
+        "a": "The clinic is at {{address}}. Before a first visit, confirm the address by phone: {{phone}}."
+      },
+      {
+        "id": "booking",
+        "topic": "practical",
+        "keywords": ["book", "booking", "appointment", "schedule a", "whatsapp", "call"],
+        "q": "How do I book a visit?",
+        "a": "Call {{phone}} or send a WhatsApp message. A name, phone number, the child's age, and a preferred time are enough. Please don't include medical details."
+      },
+      {
+        "id": "access",
+        "topic": "practical",
+        "keywords": ["parking", "stroller", "wheelchair", "elevator", "access", "stairs"],
+        "q": "Is there parking or step-free access?",
+        "a": "{{access}}"
+      },
+      {
+        "id": "funds",
+        "topic": "practical",
+        "keywords": ["kupat", "health fund", "clalit", "maccabi", "meuhedet", "leumit", "insurance"],
+        "q": "Do you work with Israeli health funds?",
+        "a": "{{funds}}"
+      },
+      {
+        "id": "languages",
+        "topic": "practical",
+        "keywords": ["english", "hebrew", "language"],
+        "q": "Can we visit in English?",
+        "a": "This website is in Hebrew and English. The language of the visit itself is whatever you arrange with the clinic. Mention a preference when you call {{phone}}."
+      },
+      {
+        "id": "payment",
+        "topic": "practical",
+        "keywords": ["price", "cost", "how much", "fee", "pay", "payment"],
+        "q": "How much does a visit cost?",
+        "a": "This site does not publish a price list. Fees are explained at the clinic before you decide. You can also ask when you call to book."
+      },
+      {
+        "id": "first-visit",
+        "topic": "visit",
+        "keywords": ["first visit", "age one", "age 1", "first tooth", "baby", "when should"],
+        "q": "When should the first visit be?",
+        "a": "A first exam is usually recommended by age one, or when the first tooth comes in. The first visit is often an introduction, an exam at the child's pace, and guidance for home. Treatment is not always done that day.",
+        "href": "/tips/first-visit/"
+      },
+      {
+        "id": "expect",
+        "topic": "visit",
+        "keywords": ["what happens", "during the visit", "what to expect"],
+        "q": "What happens at a visit?",
+        "a": "We start by talking with the parent and child, explain what we are going to look at, and examine at a pace the child can manage. If treatment is needed, it is explained before it starts. If a child is not ready that day, we stop and try another way."
+      },
+      {
+        "id": "bring",
+        "topic": "visit",
+        "keywords": ["what to bring", "bring", "forms", "documents"],
+        "q": "What should we bring?",
+        "a": "Bring a health-fund form if you usually need one at a clinic. Medical information the dentist should know is given at the clinic or by phone, not in the website form and not in this chat."
+      },
+      {
+        "id": "fearful",
+        "topic": "visit",
+        "keywords": ["afraid", "scared", "fear", "anxious", "crying", "nervous"],
+        "q": "My child is afraid of the dentist. What helps?",
+        "a": "Say so when you book. A short introductory visit, without treatment, is possible. At home, keep it simple: “we're going to count teeth.” It helps not to promise that nothing will be felt, and not to tell frightening stories."
+      },
+      {
+        "id": "parents",
+        "topic": "visit",
+        "keywords": ["parent stay", "stay in the room", "come in with"],
+        "q": "Can a parent stay in the room?",
+        "a": "A parent is usually in the room and part of the visit, especially with young children. If a different arrangement would help the child cope, that is discussed at the clinic."
+      },
+      {
+        "id": "ages",
+        "topic": "visit",
+        "keywords": ["what ages", "how old", "teen", "toddler", "age range"],
+        "q": "What ages do you see?",
+        "a": "The clinic is for children, starting from the first tooth. If you are not sure the age is a fit, ask when you call {{phone}}."
+      },
+      {
+        "id": "cleaning",
+        "topic": "care",
+        "keywords": ["cleaning", "fluoride", "polish", "hygiene"],
+        "q": "Do you do cleanings and fluoride?",
+        "a": "Cleanings and fluoride are done according to age and what the exam shows. What a particular child needs is decided at the visit, not in advance on the website."
+      },
+      {
+        "id": "sealants",
+        "topic": "care",
+        "keywords": ["sealant", "sealants", "fissure"],
+        "q": "What are sealants?",
+        "a": "A thin coating on the grooves of molar teeth, to make it harder for bacteria to settle there. They are considered after an exam, often on newly erupted permanent teeth. They do not replace brushing."
+      },
+      {
+        "id": "fillings",
+        "topic": "care",
+        "keywords": ["filling", "fillings", "cavity", "cavities", "decay"],
+        "q": "Do you treat cavities in children?",
+        "a": "Yes, after an exam. If there is decay, the findings and the options are explained to the parents. A filling is one option. The site cannot promise a particular result."
+      },
+      {
+        "id": "brushing",
+        "topic": "care",
+        "keywords": ["brush", "brushing", "toothpaste", "floss"],
+        "q": "How should brushing change with age?",
+        "a": "From the first tooth, brush twice a day with a fluoride toothpaste, using a small amount for the age. A parent finishes the brushing until the child truly does it well. The age-by-age page has the details.",
+        "href": "/tips/brushing-by-age/"
+      },
+      {
+        "id": "pain",
+        "topic": "urgent",
+        "keywords": ["pain", "hurts", "sore", "sensitive", "toothache"],
+        "q": "There is pain. What should we do?",
+        "a": "This chat cannot assess pain. Call the clinic at {{phone}} and say when it started. If the pain is severe, there is swelling or bleeding, or you are worried, treat it as urgent: call now, and if nobody answers go to an emergency room or call MADA at 101."
+      },
+      {
+        "id": "emergency",
+        "topic": "urgent",
+        "keywords": ["emergency", "urgent", "dental trauma"],
+        "q": "What should we do in an emergency?",
+        "a": "This is general information, not medical advice. In an urgent situation call the clinic now: {{phone}}. If nobody answers, there is significant bleeding or swelling, trouble swallowing or breathing, or you are worried — go to an emergency room or call MADA at 101. A general parent page about an injured tooth is on the site, and it does not replace immediate help.",
+        "href": "/tips/knocked-out-tooth/"
+      }
+    ]
+  }
+}

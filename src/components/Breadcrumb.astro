@@ -1,0 +1,23 @@
+---
+import { localePath } from "../lib/paths";
+import type { Locale } from "../lib/role";
+
+interface Props {
+  locale: Locale;
+  items: { name: string; path: string }[];
+}
+const { locale, items } = Astro.props;
+---
+<nav class="crumbs-wrap" aria-label={locale === "he" ? "מיקום באתר" : "Breadcrumb"}>
+  <ol class="crumbs">
+    {items.map((item, index) => (
+      <li>
+        {index === items.length - 1 ? (
+          <span aria-current="page">{item.name}</span>
+        ) : (
+          <a href={localePath(locale, item.path)}>{item.name}</a>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>

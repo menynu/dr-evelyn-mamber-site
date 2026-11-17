@@ -1,0 +1,49 @@
+---
+import Breadcrumb from "../components/Breadcrumb.astro";
+import { getCopy } from "../content";
+import { clinic } from "../lib/config";
+import type { Locale } from "../lib/role";
+import Base from "../layouts/Base.astro";
+
+interface Props { locale: Locale; page: "a11y" | "privacy" }
+const { locale, page } = Astro.props;
+const t = getCopy(locale);
+const content = page === "a11y" ? t.a11y : t.privacy;
+const meta = page === "a11y" ? t.meta.accessibility : t.meta.privacy;
+const path = page === "a11y" ? "/accessibility/" : "/privacy/";
+const label = t.footerLinks.find((item) => item.path === path)?.label || content.title;
+const crumbs = [
+  { name: t.homeLabel, path: "/" },
+  { name: label, path },
+];
+const updated = new Intl.DateTimeFormat(locale === "he" ? "he-IL" : "en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+}).format(new Date(`${clinic.updatedAt}T00:00:00Z`));
+---
+<Base locale={locale} title={meta.title} description={meta.description} path={path} breadcrumbs={crumbs}>
+  <article class="container page-intro prose">
+    <Breadcrumb locale={locale} items={crumbs} />
+    <p class="kicker">{content.kicker}</p>
+    <h1>{content.title}</h1>
+    <p class="tips-meta">{t.updated}: {updated}</p>
+    <p class="lede">{content.lede}</p>
+    {content.sections.map((section) => (
+      <section>
+        {section.heading && <h2>{section.heading}</h2>}
+        {"paragraphs" in section && section.paragraphs?.map((paragraph) => <p>{paragraph}</p>)}
+        {"list" in section && section.list && (
+          <ul>
+            {section.list.map((item) => <li>{item}</li>)}
+          </ul>
+        )}
+      </section>
+    ))}
+    {page === "a11y" && clinic.accessibilityCoordinator && (
+      <p>{clinic.accessibilityCoordinator}</p>
+    )}
+    <p><a class="ltr" href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a></p>
+  </article>
+</Base>

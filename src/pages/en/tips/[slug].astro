@@ -1,0 +1,12 @@
+---
+import { articleSlugs } from "../../../content";
+import Article from "../../../views/Article.astro";
+
+export function getStaticPaths() {
+  return articleSlugs().map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+if (!slug) throw new Error("missing slug");
+---
+<Article locale="en" slug={slug} />

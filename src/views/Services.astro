@@ -1,0 +1,41 @@
+---
+import Breadcrumb from "../components/Breadcrumb.astro";
+import { getCopy } from "../content";
+import { clinic } from "../lib/config";
+import { localePath } from "../lib/paths";
+import type { Locale } from "../lib/role";
+import Base from "../layouts/Base.astro";
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = getCopy(locale);
+const crumbs = [
+  { name: t.homeLabel, path: "/" },
+  { name: t.nav.find((item) => item.id === "services")?.label || "", path: "/services/" },
+];
+---
+<Base locale={locale} title={t.meta.services.title} description={t.meta.services.description} path="/services/" breadcrumbs={crumbs}>
+  <div class="container page-intro">
+    <Breadcrumb locale={locale} items={crumbs} />
+    <p class="kicker">{t.servicesPage.kicker}</p>
+    <h1>{t.servicesPage.title}</h1>
+    <p class="lede prose">{t.servicesPage.lede}</p>
+  </div>
+  <div class="section">
+    <div class="container stack">
+      {t.services.map((service) => (
+        <article class="card" id={service.id}>
+          <h2>{service.title}</h2>
+          <p>{service.summary}</p>
+          {service.body.map((paragraph) => <p>{paragraph}</p>)}
+        </article>
+      ))}
+      <aside class="urgent">
+        <h2>{t.emergencyTitle}</h2>
+        <p>{t.emergencyBody}</p>
+        <p><a class="btn btn-clay" href={`tel:${clinic.phoneTel}`}>{t.emergencyCall}</a></p>
+      </aside>
+      <p><a href={localePath(locale, "/contact/")}>{t.nav.find((item) => item.id === "contact")?.label}</a></p>
+    </div>
+  </div>
+</Base>

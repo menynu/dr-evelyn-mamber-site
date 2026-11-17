@@ -1,0 +1,203 @@
+---
+import HeroArt from "../components/HeroArt.astro";
+import Icon from "../components/Icon.astro";
+import { getCopy, getFaq } from "../content";
+import { clinic } from "../lib/config";
+import { localePath } from "../lib/paths";
+import { whatsappHref } from "../lib/public";
+import type { Locale } from "../lib/role";
+import Base from "../layouts/Base.astro";
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = getCopy(locale);
+const faq = getFaq(locale);
+const previewIds = ["first-visit", "hours", "fearful", "booking"];
+const preview = previewIds.map((id) => faq.entries.find((entry) => entry.id === id)).filter((entry) => entry != null);
+const wa = whatsappHref(t.contact.genericWhatsapp);
+const icons: Record<string, string> = {
+  checkup: "tooth",
+  cleaning: "spark",
+  sealants: "shield",
+  fillings: "heart",
+  trauma: "drop",
+  guidance: "book",
+  first: "calendar",
+};
+const whyIcons = ["users", "leaf", "shield"];
+---
+<Base locale={locale} title={t.meta.home.title} description={t.meta.home.description} path="/" kind="home">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <p class="kicker">{t.home.kicker}</p>
+        <h1>{t.home.title}</h1>
+        <p class="lede">{t.home.lede}</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href={`tel:${clinic.phoneTel}`}>{t.home.primaryCta}</a>
+          {wa && (
+            <a class="btn btn-secondary" href={wa} target="_blank" rel="noopener noreferrer">
+              {t.home.secondaryCta}
+              <span class="sr-only">{t.newTab}</span>
+            </a>
+          )}
+        </div>
+        </div>
+      <div class="hero-art">
+        <HeroArt />
+      </div>
+    </div>
+    <div class="container trust">
+      {t.home.trust.map((item) => (
+        <article class="trust-item">
+          <strong>{item.title}</strong>
+          <p>{item.text}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="why-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="kicker">{t.home.whyKicker}</p>
+        <h2 id="why-title">{t.home.whyTitle}</h2>
+        <p class="lede">{t.home.whyLede}</p>
+      </div>
+      <div class="cards-3">
+        {t.home.why.map((item, index) => (
+          <article class="card">
+            <div class="icon-bubble"><Icon name={whyIcons[index] || "tooth"} /></div>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" aria-labelledby="services-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="kicker">{t.home.servicesKicker}</p>
+        <h2 id="services-title">{t.home.servicesTitle}</h2>
+        <p class="lede">{t.home.servicesLede}</p>
+      </div>
+      <div class="cards-3">
+        {t.services.map((service) => (
+          <article class="card" id={service.id}>
+            <div class="icon-bubble"><Icon name={icons[service.id] || "tooth"} /></div>
+            <h3>{service.title}</h3>
+            <p>{service.summary}</p>
+          </article>
+        ))}
+      </div>
+      <p class="link-row"><a class="btn btn-secondary" href={localePath(locale, "/services/")}>{t.home.allServices}</a></p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="visit-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="kicker">{t.home.visitKicker}</p>
+        <h2 id="visit-title">{t.home.visitTitle}</h2>
+        <p class="lede">{t.home.visitLede}</p>
+      </div>
+      <div class="steps">
+        {t.home.steps.map((step, index) => (
+          <article class="step">
+            <span class="step-no">{index + 1}</span>
+            <strong>{step.title}</strong>
+            <p>{step.text}</p>
+          </article>
+        ))}
+      </div>
+      <p class="link-row"><a href={localePath(locale, "/tips/first-visit/")}>{t.home.visitLink}</a></p>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <aside class="urgent" aria-labelledby="urgent-title">
+        <h2 id="urgent-title">{t.emergencyTitle}</h2>
+        <p>{t.emergencyBody}</p>
+        <p class="link-row"><a class="btn btn-clay" href={`tel:${clinic.phoneTel}`}>{t.emergencyCall}</a></p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- TODO: verified testimonials — intentionally empty until Dr. Mamber provides real reviews with permission. Do not invent quotes. -->
+  {clinic.testimonials.length > 0 && (
+    <section class="section" aria-labelledby="reviews-title">
+      <div class="container">
+        <h2 id="reviews-title">{locale === "he" ? "הורים מספרים" : "From parents"}</h2>
+        <div class="cards-3">
+          {clinic.testimonials.map((item) => (
+            <blockquote class="card">
+              <p>{locale === "he" ? item.quoteHe : item.quoteEn}</p>
+              <footer>
+                <cite>{item.name}</cite>
+                <span>{locale === "he" ? item.detailHe : item.detailEn}</span>
+              </footer>
+            </blockquote>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="section" aria-labelledby="tips-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="kicker">{t.home.tipsKicker}</p>
+        <h2 id="tips-title">{t.home.tipsTitle}</h2>
+        <p class="lede">{t.home.tipsLede}</p>
+      </div>
+      <div class="cards-3">
+        {t.articles.map((article) => (
+          <a class="card tips-card" href={localePath(locale, `/tips/${article.slug}/`)}>
+            <span class="tips-meta">{article.minutes} {t.minutes}</span>
+            <h3>{article.title}</h3>
+            <p>{article.description}</p>
+            <span>{t.readMore}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" aria-labelledby="faq-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="kicker">{t.home.faqKicker}</p>
+        <h2 id="faq-title">{t.home.faqTitle}</h2>
+      </div>
+      <div class="faq-list">
+        {preview.map((entry) => (
+          <details class="faq-item">
+            <summary>
+              {entry.q}
+              <Icon name="chevron" />
+            </summary>
+            <div class="answer">
+              <p>{entry.a}</p>
+              {entry.href && <p><a href={localePath(locale, entry.href)}>{t.readMore}</a></p>}
+            </div>
+          </details>
+        ))}
+      </div>
+      <p class="link-row"><a href={localePath(locale, "/faq/")}>{t.home.faqLink}</a></p>
+    </div>
+  </section>
+
+  <section class="section band">
+    <div class="container">
+      <h2>{t.home.bandTitle}</h2>
+      <p>{t.home.bandText}</p>
+      <div class="cta-row">
+        <a class="btn btn-gold" href={`tel:${clinic.phoneTel}`}><span class="ltr">{clinic.phoneDisplay}</span></a>
+        <a class="btn btn-secondary" href={localePath(locale, "/contact/")}>{t.nav.find((item) => item.id === "contact")?.label}</a>
+      </div>
+    </div>
+  </section>
+</Base>

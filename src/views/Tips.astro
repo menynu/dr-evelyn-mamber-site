@@ -1,0 +1,35 @@
+---
+import Breadcrumb from "../components/Breadcrumb.astro";
+import { getCopy } from "../content";
+import { localePath } from "../lib/paths";
+import type { Locale } from "../lib/role";
+import Base from "../layouts/Base.astro";
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = getCopy(locale);
+const crumbs = [
+  { name: t.homeLabel, path: "/" },
+  { name: t.nav.find((item) => item.id === "tips")?.label || "", path: "/tips/" },
+];
+---
+<Base locale={locale} title={t.meta.tips.title} description={t.meta.tips.description} path="/tips/" breadcrumbs={crumbs}>
+  <div class="container page-intro">
+    <Breadcrumb locale={locale} items={crumbs} />
+    <p class="kicker">{t.tipsPage.kicker}</p>
+    <h1>{t.tipsPage.title}</h1>
+    <p class="lede">{t.tipsPage.lede}</p>
+  </div>
+  <section class="section">
+    <div class="container cards-3">
+      {t.articles.map((article) => (
+        <a class="card tips-card" href={localePath(locale, `/tips/${article.slug}/`)}>
+          <span class="tips-meta">{article.minutes} {t.minutes}</span>
+          <h2>{article.title}</h2>
+          <p>{article.description}</p>
+          <span>{t.readMore}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>

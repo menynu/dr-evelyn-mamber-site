@@ -1,0 +1,24 @@
+---
+import Base from "../layouts/Base.astro";
+import { getCopy } from "../content";
+import { clinic } from "../lib/config";
+import { localePath } from "../lib/paths";
+
+const t = getCopy("he");
+const en = getCopy("en");
+---
+<Base locale="he" title={`${t.notFound.title} | ${clinic.doctorNameHe}`} description={t.notFound.text} path="/404/" noindex>
+  <div class="container not-found">
+    <h1>{t.notFound.title}</h1>
+    <p>{t.notFound.text}</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href={localePath("he", "/")}>{t.notFound.home}</a>
+      <a class="btn btn-secondary" href={`tel:${clinic.phoneTel}`}><span class="ltr">{clinic.phoneDisplay}</span></a>
+    </div>
+    <div lang="en" dir="ltr">
+      <h2>{en.notFound.title}</h2>
+      <p>{en.notFound.text}</p>
+      <p><a href={localePath("en", "/")}>{en.notFound.home}</a></p>
+    </div>
+  </div>
+</Base>
