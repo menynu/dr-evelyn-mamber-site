@@ -674,7 +674,7 @@ textarea { min-height: 6rem; resize: vertical; }
   inset-inline-end: 1rem;
   inset-block-end: 5.25rem;
   width: min(24rem, calc(100vw - 1.5rem));
-  height: min(36rem, calc(100dvh - 7rem));
+  height: min(42rem, calc(100dvh - 6.25rem));
   background: #fff;
   color: var(--ink);
   border-radius: 1.25rem;
@@ -686,7 +686,7 @@ textarea { min-height: 6rem; resize: vertical; }
 }
 .bot-panel[hidden] { display: none; }
 
-.bot-head, .bot-foot, .composer, .quick-wrap { padding: 0.75rem; }
+.bot-head, .bot-foot, .composer, .quick-wrap { flex: none; padding: 0.75rem; }
 .bot-head {
   display: flex;
   align-items: flex-start;
@@ -707,14 +707,17 @@ textarea { min-height: 6rem; resize: vertical; }
   cursor: pointer;
 }
 .bot-disclaimer {
+  flex: none;
   margin: 0;
   background: #f8e7c2;
   color: var(--ink);
-  padding: 0.65rem 0.75rem;
-  font-size: 0.95rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
 }
 .bot-log {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
   padding: 0.75rem;
   display: flex;
@@ -733,18 +736,27 @@ textarea { min-height: 6rem; resize: vertical; }
 .msg-bot { background: var(--foam); margin-inline-end: auto; border-end-start-radius: 0.3rem; }
 .msg-user { background: var(--pine); color: #fff; margin-inline-start: auto; border-end-end-radius: 0.3rem; }
 .msg-user a { color: #fff; }
-.quick-wrap { display: flex; flex-wrap: wrap; gap: 0.4rem; border-top: 1px solid var(--line); }
+.quick-wrap {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  overflow-x: auto;
+  border-top: 1px solid var(--line);
+  scrollbar-width: thin;
+}
 .quick-wrap button, .bot-foot a, .composer button {
   font: inherit;
   cursor: pointer;
 }
 .quick-wrap button {
+  flex: none;
   border: 1px solid var(--pine);
   background: #fff;
   color: var(--pine);
   border-radius: 999px;
   min-height: 2.75rem;
   padding: 0.3rem 0.75rem;
+  white-space: nowrap;
 }
 .quick-wrap button:hover, .composer button:hover { background: var(--foam); }
 .composer {
@@ -752,7 +764,7 @@ textarea { min-height: 6rem; resize: vertical; }
   gap: 0.45rem;
   border-top: 1px solid var(--line);
 }
-.composer input { flex: 1; }
+.composer input { flex: 1; width: auto; min-width: 0; }
 .composer button {
   border: 0;
   background: var(--pine);

@@ -198,7 +198,8 @@ function addMessage(log, kind, text, href, linkLabel, result) {
   }
   if (kind === "bot" && result) appendAnswerActions(item, result);
   log.append(item);
-  log.scrollTop = log.scrollHeight;
+  const top = item.getBoundingClientRect().top - log.getBoundingClientRect().top + log.scrollTop;
+  log.scrollTop = top;
 }
 
 function setupBot() {
