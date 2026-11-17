@@ -19,8 +19,10 @@
  */
 
 const clinic = {
-  // TODO: כתובת האתר האמיתית, כולל https, בלי סלאש בסוף.
-  siteUrl: "https://clinic.example",
+  // דומיין GitHub Pages, כולל https, בלי סלאש ובלי שם המאגר.
+  // הכתובת המלאה היא https://menynu.github.io/dr-evelyn-mamber-site/
+  // בדומיין פרטי מחליפים לכתובת החדשה ומוחקים את GITHUB_PAGES_BASE מה-workflow.
+  siteUrl: "https://menynu.github.io",
 
   // TODO: לשנות ל-true רק אם קיים רישום בתוקף במשרד הבריאות.
   // כשזה false האתר לא מציג את תואר הרישום. ראו README.

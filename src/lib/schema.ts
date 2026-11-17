@@ -22,8 +22,9 @@ function languageTag(locale: Locale): string {
 
 export function buildSchema(input: SchemaInput) {
   const pageUrl = absoluteUrl(localePath(input.locale, input.path));
-  const clinicId = `${clinic.siteUrl}/#clinic`;
-  const websiteId = `${clinic.siteUrl}/#website`;
+  const homeUrl = absoluteUrl("/");
+  const clinicId = `${homeUrl}#clinic`;
+  const websiteId = `${homeUrl}#website`;
   const spoken = clinic.spokenLanguages.map((code) => (code === "he" ? "he" : code));
 
   const clinicNode: Record<string, unknown> = {
@@ -35,7 +36,7 @@ export function buildSchema(input: SchemaInput) {
       input.locale === "he"
         ? `${clinic.doctorNameHe}, רופאת שיניים לילדים ב${clinic.cityHe}.`
         : `${clinic.doctorNameEn}, pediatric dentist in ${clinic.cityEn}.`,
-    url: `${clinic.siteUrl}/`,
+    url: homeUrl,
     telephone: clinic.phoneSchema,
     medicalSpecialty: "http://schema.org/Dentistry",
     image: absoluteUrl("/og.png"),
@@ -74,7 +75,7 @@ export function buildSchema(input: SchemaInput) {
     {
       "@type": "WebSite",
       "@id": websiteId,
-      url: `${clinic.siteUrl}/`,
+      url: homeUrl,
       name: clinic.doctorNameHe,
       inLanguage: ["he-IL", "en"],
       publisher: { "@id": clinicId },
@@ -130,7 +131,7 @@ export function buildSchema(input: SchemaInput) {
       author: {
         "@type": "Organization",
         name: clinic.doctorNameHe,
-        url: `${clinic.siteUrl}/`,
+        url: homeUrl,
       },
       publisher: { "@id": clinicId },
     });

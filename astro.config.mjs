@@ -2,8 +2,11 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import clinic from "./clinic.config.mjs";
 
+const pagesBase = process.env.GITHUB_PAGES_BASE?.trim();
+
 export default defineConfig({
   site: clinic.siteUrl,
+  ...(pagesBase ? { base: pagesBase } : {}),
   output: "static",
   trailingSlash: "always",
   build: {

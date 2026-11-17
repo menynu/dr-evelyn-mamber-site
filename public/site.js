@@ -112,7 +112,14 @@ function setupForm() {
 
 function localize(href, locale) {
   if (!href) return "";
-  if (locale === "en" && href.startsWith("/") && !href.startsWith("/en/")) return `/en${href}`;
+  if (!href.startsWith("/")) return href;
+  const rootNode = document.querySelector("[data-locale-root]");
+  const root = rootNode instanceof HTMLElement ? rootNode.dataset.localeRoot || "" : "";
+  if (root) {
+    const prefix = root.endsWith("/") ? root.slice(0, -1) : root;
+    return `${prefix}${href}`;
+  }
+  if (locale === "en" && !href.startsWith("/en/")) return `/en${href}`;
   return href;
 }
 
