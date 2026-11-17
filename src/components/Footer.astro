@@ -1,4 +1,5 @@
 ---
+import NavActions from "./NavActions.astro";
 import { getCopy } from "../content";
 import { clinic } from "../lib/config";
 import { localePath } from "../lib/paths";
@@ -20,6 +21,7 @@ const name = locale === "he" ? clinic.doctorNameHe : clinic.doctorNameEn;
       <strong>{name}</strong>
       <p>{roleTitle(locale)}</p>
       <p>{addressLine(locale)}</p>
+      <NavActions locale={locale} />
       <p><a class="ltr" href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a></p>
     </div>
     <nav aria-label={t.footerNavLabel}>

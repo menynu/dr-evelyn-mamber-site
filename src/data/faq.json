@@ -16,10 +16,11 @@
     },
     "quickReplies": [
       { "id": "hours", "label": "שעות פעילות" },
-      { "id": "address", "label": "כתובת" },
+      { "id": "address", "label": "כתובת / ניווט" },
       { "id": "booking", "label": "קביעת תור" },
       { "id": "first-visit", "label": "ביקור ראשון" },
-      { "id": "emergency", "label": "מקרה חירום" }
+      { "id": "emergency", "label": "מקרה חירום" },
+      { "id": "review", "label": "ביקורת בגוגל" }
     ],
     "emergencyKeywords": [
       "חירום",
@@ -55,9 +56,16 @@
       {
         "id": "address",
         "topic": "practical",
-        "keywords": ["כתובת", "איפה", "מיקום", "הגעה", "ניווט", "מפה", "רחוב", "חזקיהו"],
+        "keywords": ["כתובת", "איפה", "מיקום", "הגעה", "ניווט", "מפה", "רחוב", "חזקיהו", "וייז", "waze", "גוגל מפות"],
         "q": "מה הכתובת של המרפאה?",
-        "a": "המרפאה נמצאת ב{{address}}. לפני הביקור הראשון כדאי לאשר את הכתובת בטלפון {{phone}}."
+        "a": "המרפאה נמצאת ב{{address}}. לפני הביקור הראשון כדאי לאשר את הכתובת בטלפון {{phone}}. אפשר גם לפתוח ניווט ב-Waze או ב-Google Maps."
+      },
+      {
+        "id": "review",
+        "topic": "practical",
+        "keywords": ["ביקורת", "לכתוב ביקורת", "ביקורת בגוגל", "דירוג", "review"],
+        "q": "איך כותבים ביקורת בגוגל?",
+        "a": "אם ביקרתם במרפאה, אפשר לכתוב בגוגל איך היה הביקור, במילים שלכם. אין חובה לכתוב, ואין על כך תמורה או הטבה. אם משהו לא היה נוח, אפשר גם להתקשר ל־{{phone}}."
       },
       {
         "id": "booking",
@@ -200,10 +208,11 @@
     },
     "quickReplies": [
       { "id": "hours", "label": "Opening hours" },
-      { "id": "address", "label": "Address" },
+      { "id": "address", "label": "Address / directions" },
       { "id": "booking", "label": "Book a visit" },
       { "id": "first-visit", "label": "First visit" },
-      { "id": "emergency", "label": "Emergency" }
+      { "id": "emergency", "label": "Emergency" },
+      { "id": "review", "label": "Google review" }
     ],
     "emergencyKeywords": [
       "emergency",
@@ -233,9 +242,16 @@
       {
         "id": "address",
         "topic": "practical",
-        "keywords": ["address", "where", "location", "directions", "map", "street"],
+        "keywords": ["address", "where", "location", "directions", "map", "street", "waze", "google maps"],
         "q": "What is the clinic address?",
-        "a": "The clinic is at {{address}}. Before a first visit, confirm the address by phone: {{phone}}."
+        "a": "The clinic is at {{address}}. Before a first visit, confirm the address by phone: {{phone}}. You can also open directions in Waze or Google Maps."
+      },
+      {
+        "id": "review",
+        "topic": "practical",
+        "keywords": ["review", "google review", "write a review", "feedback"],
+        "q": "How do I write a Google review?",
+        "a": "If you have visited the clinic, you can tell Google how it went, in your own words. Writing is optional, and there is no reward or incentive. If something was uncomfortable, you can also call {{phone}}."
       },
       {
         "id": "booking",

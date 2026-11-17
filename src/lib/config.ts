@@ -37,6 +37,11 @@ export type ClinicConfig = {
   cityHe: string;
   cityEn: string;
   postalCode: string;
+  lat: number;
+  lng: number;
+  googleReviewUrl: string;
+  navShareMode: "client" | "api";
+  navShareEndpoint: string;
   hoursConfirmed: boolean;
   hours: HourRow[];
   hoursNoteHe: string;
@@ -93,6 +98,26 @@ export function loadClinic(input: ClinicConfig): ClinicConfig {
     assertString(input[field], field);
     if (!input[field].trim()) fail(`${field} לא יכול להיות ריק`);
   }
+  if (typeof input.lat !== "number" || !Number.isFinite(input.lat) || input.lat < -90 || input.lat > 90) {
+    fail("lat צריך להיות מספר בין ‎-90 ל־90");
+  }
+  if (typeof input.lng !== "number" || !Number.isFinite(input.lng) || input.lng < -180 || input.lng > 180) {
+    fail("lng צריך להיות מספר בין ‎-180 ל־180");
+  }
+  assertString(input.googleReviewUrl, "googleReviewUrl");
+  if (input.googleReviewUrl && !/^https:\/\/\S+$/.test(input.googleReviewUrl)) {
+    fail("googleReviewUrl צריך להיות כתובת https, או ריק");
+  }
+  if (input.navShareMode !== "client" && input.navShareMode !== "api") {
+    fail("navShareMode צריך להיות client או api");
+  }
+  assertString(input.navShareEndpoint, "navShareEndpoint");
+  if (input.navShareMode === "api" && !/^https:\/\/\S+$/.test(input.navShareEndpoint)) {
+    fail("במצב api צריך navShareEndpoint שמתחיל ב־https://");
+  }
+  if (input.navShareMode === "client" && input.navShareEndpoint && !/^https:\/\/\S+$/.test(input.navShareEndpoint)) {
+    fail("navShareEndpoint צריך להיות ריק או כתובת https");
+  }
   if (!Array.isArray(input.hours) || input.hours.length === 0) {
     fail("hours צריך להיות רשימה עם לפחות שורה אחת");
   }
@@ -101,6 +126,9 @@ export function loadClinic(input: ClinicConfig): ClinicConfig {
   if (!/^\+?[0-9]+$/.test(input.phoneTel)) fail("phoneTel צריך להכיל ספרות וסימן + בלבד");
   if (input.whatsappNumber && !/^[0-9]+$/.test(input.whatsappNumber)) {
     fail("whatsappNumber צריך להיות ספרות בלבד, בלי + ובלי מקפים");
+  }
+  if (input.social.googleReview && !/^https:\/\/\S+$/.test(input.social.googleReview)) {
+    fail("social.googleReview צריך להיות כתובת https, או ריק");
   }
   for (const item of input.testimonials) {
     for (const field of ["quoteHe", "quoteEn", "name", "detailHe", "detailEn"] as const) {

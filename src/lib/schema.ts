@@ -1,6 +1,6 @@
 import { clinic } from "./config";
 import { absoluteUrl, localePath } from "./paths";
-import { addressLine } from "./public";
+import { mapsHref } from "./public";
 import type { Locale } from "./role";
 
 export type Crumb = { name: string; path: string };
@@ -47,11 +47,16 @@ export function buildSchema(input: SchemaInput) {
       addressCountry: "IL",
       ...(clinic.postalCode ? { postalCode: clinic.postalCode } : {}),
     },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: clinic.lat,
+      longitude: clinic.lng,
+    },
     areaServed: {
       "@type": "City",
       name: clinic.cityHe,
     },
-    hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${addressLine("he")}, ישראל`)}`,
+    hasMap: mapsHref(),
     currenciesAccepted: "ILS",
     knowsLanguage: spoken,
   };

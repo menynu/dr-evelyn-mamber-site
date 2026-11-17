@@ -1,5 +1,7 @@
 ---
 import Breadcrumb from "../components/Breadcrumb.astro";
+import NavActions from "../components/NavActions.astro";
+import ReviewCta from "../components/ReviewCta.astro";
 import { getCopy } from "../content";
 import { clinic } from "../lib/config";
 import { accessText, addressLine, fundsText, hoursText, mapsEmbedSrc, mapsHref, whatsappHref } from "../lib/public";
@@ -103,6 +105,7 @@ const wa = whatsappHref();
           <p>{accessText(locale)}</p>
         </div>
         <div class="map-panel" data-map-slot>
+          <NavActions locale={locale} />
           <button
             class="btn btn-secondary"
             type="button"
@@ -118,6 +121,9 @@ const wa = whatsappHref();
             <span class="sr-only">{t.newTab}</span>
           </a>
         </div>
+        <aside class="card review-panel">
+          <ReviewCta locale={locale} titleId="contact-review-title" />
+        </aside>
         <aside class="urgent">
           <h2>{t.emergencyTitle}</h2>
           <p>{t.emergencyBody}</p>

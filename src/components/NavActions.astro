@@ -1,0 +1,33 @@
+---
+import { getCopy } from "../content";
+import { mapsDirectionsHref, wazeHref } from "../lib/public";
+import type { Locale } from "../lib/role";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getCopy(locale);
+const waze = wazeHref();
+const maps = mapsDirectionsHref();
+---
+<div class="nav-actions" role="group" aria-label={t.navTo.label}>
+  <a class="btn btn-primary when-mobile" href={waze} data-waze-direct target="_blank" rel="noopener noreferrer">
+    {t.navTo.waze}
+    <span class="sr-only"> {t.newTab}</span>
+  </a>
+  <a
+    class="btn btn-primary when-desktop"
+    href={waze}
+    data-waze-share
+    aria-haspopup="dialog"
+    aria-expanded="false"
+    aria-controls="waze-share-dialog"
+  >
+    {t.navTo.wazeDesktop}
+  </a>
+  <a class="btn btn-secondary" href={maps} target="_blank" rel="noopener noreferrer">
+    {t.navTo.google}
+    <span class="sr-only"> {t.newTab}</span>
+  </a>
+</div>

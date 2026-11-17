@@ -3,6 +3,7 @@ import "../styles/global.css";
 import Bot from "../components/Bot.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
+import WazeShare from "../components/WazeShare.astro";
 import { getCopy } from "../content";
 import { clinic } from "../lib/config";
 import { absoluteUrl, localePath } from "../lib/paths";
@@ -78,6 +79,7 @@ const ogAlt = locale === "he" ? "en_US" : "he_IL";
     </main>
     <Footer locale={locale} />
     <Bot locale={locale} />
+    <WazeShare locale={locale} />
     <noscript>
       <p class="noscript-note">{t.footerFine} <a href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a></p>
     </noscript>

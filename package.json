@@ -8,8 +8,8 @@
     "build": "astro build",
     "preview": "astro preview --host 0.0.0.0 --port 4392",
     "check": "astro check",
-    "test": "node scripts/test-bot.mjs",
-    "verify": "node scripts/check-content.mjs && node scripts/test-bot.mjs"
+    "test": "node scripts/test-bot.mjs && node scripts/test-nav-share.mjs",
+    "verify": "node scripts/check-content.mjs && node scripts/test-bot.mjs && node scripts/test-nav-share.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -17,7 +17,8 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.5",
     "@fontsource/rubik": "^5.3.0",
-    "astro": "^7.4.12"
+    "astro": "^7.4.12",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",

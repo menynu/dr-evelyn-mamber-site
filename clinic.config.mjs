@@ -58,6 +58,28 @@ const clinic = {
   // TODO: מיקוד. ריק = לא מוצג.
   postalCode: "",
 
+  // נעץ הבניין חזקיהו המלך 36 לפי OpenStreetMap (צומת הבית).
+  // הנעץ של אותו כרטיס במפות גוגל יושב כמה מטרים משם (כ־31.76167, 35.21011).
+  // אם הכניסה למרפאה במקום אחר, מעדכנים את שני המספרים.
+  lat: 31.7616196,
+  lng: 35.2101335,
+
+  // קישור לכתיבת ביקורת בגוגל. האתר משתמש בשדה הזה בכפתורים.
+  // הערך הנוכחי הוא Place ID של כרטיס המרפאה במפות גוגל בכתובת הזו.
+  // אם יש קישור קצר רשמי מפרופיל העסק, מחליפים את כל הכתובת:
+  // בגוגל ביזנס: שתפו ← בקשו ביקורות ← מעתיקים את הקישור שמסתיים ב־/review
+  // (בדרך כלל g.page/r/.../review). לא לבקש רק ביקורת חיובית, ולא להציע הטבה.
+  googleReviewUrl:
+    "https://search.google.com/local/writereview?placeid=ChIJXbLbayXXAhURe7YL--N1iNA",
+
+  // איך מחשב שולח קישור Waze לטלפון.
+  // "client" פותח וואטסאפ או SMS במכשיר. המספר לא נשמר ולא נשלח לשרת של האתר.
+  // "api" שולח POST אל navShareEndpoint (פונקציית שרת עתידית, למשל serverless).
+  // במצב api הגוף הוא { "to": "9725XXXXXXXX", "channel": "whatsapp"|"sms", "text": "..." }.
+  // השרת צריך לאפשר קריאה מהדומיין של האתר (CORS). לא להחליף ל־api בלי כתובת https אמיתית.
+  navShareMode: "client",
+  navShareEndpoint: "",
+
   // TODO: לאשר לוח שעות, ואז להחליף hoursConfirmed ל-true.
   hoursConfirmed: false,
   hours: [
@@ -104,6 +126,7 @@ const clinic = {
     facebook: "",
     instagram: "",
     googleBusiness: "",
+    // לא בשימוש בכפתורי האתר. את קישור הביקורת שמים ב־googleReviewUrl.
     googleReview: "",
   },
 

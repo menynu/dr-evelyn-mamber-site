@@ -1,6 +1,8 @@
 ---
 import Breadcrumb from "../components/Breadcrumb.astro";
 import Icon from "../components/Icon.astro";
+import NavActions from "../components/NavActions.astro";
+import ReviewCta from "../components/ReviewCta.astro";
 import { getCopy, getFaq } from "../content";
 import { localePath } from "../lib/paths";
 import type { Locale } from "../lib/role";
@@ -48,6 +50,8 @@ const topics = ["practical", "visit", "care", "urgent"] as const;
                   </summary>
                   <div class="answer">
                     <p>{entry.a}</p>
+                    {entry.id === "address" && <NavActions locale={locale} />}
+                    {entry.id === "review" && <ReviewCta locale={locale} showText={false} />}
                     {entry.href && <p><a href={localePath(locale, entry.href)}>{t.readMore}</a></p>}
                   </div>
                 </details>

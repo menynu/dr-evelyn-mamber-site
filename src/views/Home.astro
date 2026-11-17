@@ -1,6 +1,7 @@
 ---
 import HeroArt from "../components/HeroArt.astro";
 import Icon from "../components/Icon.astro";
+import ReviewCta from "../components/ReviewCta.astro";
 import { getCopy, getFaq } from "../content";
 import { clinic } from "../lib/config";
 import { localePath } from "../lib/paths";
@@ -128,9 +129,9 @@ const whyIcons = ["users", "leaf", "shield"];
 
   <!-- TODO: verified testimonials — intentionally empty until Dr. Mamber provides real reviews with permission. Do not invent quotes. -->
   {clinic.testimonials.length > 0 && (
-    <section class="section" aria-labelledby="reviews-title">
+    <section class="section" aria-labelledby="testimonials-title">
       <div class="container">
-        <h2 id="reviews-title">{locale === "he" ? "הורים מספרים" : "From parents"}</h2>
+        <h2 id="testimonials-title">{locale === "he" ? "הורים מספרים" : "From parents"}</h2>
         <div class="cards-3">
           {clinic.testimonials.map((item) => (
             <blockquote class="card">
@@ -145,6 +146,14 @@ const whyIcons = ["users", "leaf", "shield"];
       </div>
     </section>
   )}
+
+  <section class="section" aria-labelledby="reviews-title">
+    <div class="container">
+      <div class="review-panel">
+        <ReviewCta locale={locale} titleId="reviews-title" />
+      </div>
+    </div>
+  </section>
 
   <section class="section" aria-labelledby="tips-title">
     <div class="container">

@@ -1,0 +1,26 @@
+---
+import { getCopy } from "../content";
+import { reviewHref } from "../lib/public";
+import type { Locale } from "../lib/role";
+
+interface Props {
+  locale: Locale;
+  titleId?: string;
+  showText?: boolean;
+}
+const { locale, titleId = "review-title", showText = true } = Astro.props;
+const t = getCopy(locale);
+const href = reviewHref();
+---
+{href && (
+  <>
+    {showText && <h2 id={titleId}>{t.review.title}</h2>}
+    {showText && <p>{t.review.text}</p>}
+    <p class="link-row">
+      <a class="btn btn-secondary" href={href} target="_blank" rel="noopener noreferrer">
+        {t.review.button}
+        <span class="sr-only"> {t.newTab}</span>
+      </a>
+    </p>
+  </>
+)}

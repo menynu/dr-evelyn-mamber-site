@@ -1,4 +1,12 @@
 import { answerById, answerQuestion } from "./bot-core.js";
+import {
+  isDesktopNavigation,
+  normalizeIsraeliMobile,
+  sendNavigationLink,
+  shareText,
+  smsShareUrl,
+  whatsappShareUrl,
+} from "./nav-share.js";
 
 function setupNav() {
   const toggle = document.querySelector("[data-nav-toggle]");
@@ -123,7 +131,60 @@ function localize(href, locale) {
   return href;
 }
 
-function addMessage(log, kind, text, href, linkLabel) {
+function externalLink(href, label, newTabLabel) {
+  const link = document.createElement("a");
+  link.href = href;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = label;
+  if (newTabLabel) {
+    const note = document.createElement("span");
+    note.className = "sr-only";
+    note.textContent = ` ${newTabLabel}`;
+    link.append(note);
+  }
+  return link;
+}
+
+function readNavConfig() {
+  const node = document.querySelector("#nav-share-config");
+  if (!(node instanceof HTMLScriptElement)) return null;
+  try {
+    return JSON.parse(node.textContent || "");
+  } catch {
+    return null;
+  }
+}
+
+function appendAnswerActions(item, result) {
+  const config = readNavConfig();
+  if (!config) return;
+  const actions = document.createElement("div");
+  actions.className = "msg-actions";
+  if (result.id === "address" && config.wazeUrl && config.mapsUrl) {
+    const mobile = externalLink(config.wazeUrl, config.labels.waze, config.labels.newTab);
+    mobile.classList.add("btn", "btn-secondary", "when-mobile");
+    const desktop = document.createElement("a");
+    desktop.className = "btn btn-secondary when-desktop";
+    desktop.href = config.wazeUrl;
+    desktop.dataset.wazeShare = "true";
+    desktop.setAttribute("aria-haspopup", "dialog");
+    desktop.setAttribute("aria-expanded", "false");
+    desktop.setAttribute("aria-controls", "waze-share-dialog");
+    desktop.textContent = config.labels.wazeDesktop;
+    const maps = externalLink(config.mapsUrl, config.labels.google, config.labels.newTab);
+    maps.classList.add("btn", "btn-secondary");
+    actions.append(mobile, desktop, maps);
+  }
+  if (result.id === "review" && config.reviewUrl) {
+    const review = externalLink(config.reviewUrl, config.labels.review, config.labels.newTab);
+    review.classList.add("btn", "btn-secondary");
+    actions.append(review);
+  }
+  if (actions.childElementCount) item.append(actions);
+}
+
+function addMessage(log, kind, text, href, linkLabel, result) {
   const item = document.createElement("div");
   item.className = kind === "user" ? "msg msg-user" : "msg msg-bot";
   const paragraph = document.createElement("p");
@@ -135,6 +196,7 @@ function addMessage(log, kind, text, href, linkLabel) {
     link.textContent = linkLabel || href;
     item.append(document.createElement("br"), link);
   }
+  if (kind === "bot" && result) appendAnswerActions(item, result);
   log.append(item);
   log.scrollTop = log.scrollHeight;
 }
@@ -165,7 +227,7 @@ function setupBot() {
   let lastFocus = openButton;
 
   const show = (result) => {
-    addMessage(log, "bot", result.text, localize(result.href, locale), linkLabel);
+    addMessage(log, "bot", result.text, result.href ? localize(result.href, locale) : "", linkLabel, result);
   };
 
   const open = () => {
@@ -211,6 +273,8 @@ function setupBot() {
   });
 
   document.addEventListener("keydown", (event) => {
+    const shareDialog = document.querySelector("[data-waze-dialog]");
+    if (shareDialog instanceof HTMLDialogElement && shareDialog.open) return;
     if (panel.hidden) return;
     if (event.key === "Escape") {
       event.preventDefault();
@@ -234,7 +298,171 @@ function setupBot() {
   });
 }
 
+function setupShare() {
+  const dialog = document.querySelector("[data-waze-dialog]");
+  const form = document.querySelector("[data-waze-form]");
+  const config = readNavConfig();
+  if (!(dialog instanceof HTMLDialogElement) || !(form instanceof HTMLFormElement) || !config) return;
+
+  const phone = form.querySelector("[data-waze-phone]");
+  const error = form.querySelector("[data-waze-error]");
+  const status = form.querySelector("[data-waze-status]");
+  const copyButton = form.querySelector("[data-waze-copy]");
+  if (!(phone instanceof HTMLInputElement) || !(error instanceof HTMLElement) || !(status instanceof HTMLElement)) return;
+
+  let lastTrigger = null;
+
+  const applyMode = () => {
+    const desktop = isDesktopNavigation();
+    document.documentElement.classList.toggle("nav-mode-desktop", desktop);
+    document.documentElement.classList.toggle("nav-mode-mobile", !desktop);
+  };
+  applyMode();
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const coarse = window.matchMedia("(hover: none), (pointer: coarse)");
+  fine.addEventListener("change", applyMode);
+  coarse.addEventListener("change", applyMode);
+
+  const clearStatus = () => {
+    status.hidden = true;
+    status.textContent = "";
+  };
+
+  const showError = (message) => {
+    error.hidden = false;
+    error.textContent = message;
+    phone.setAttribute("aria-invalid", "true");
+    phone.setAttribute("aria-describedby", "waze-phone-hint waze-share-error");
+    clearStatus();
+  };
+
+  const clearError = () => {
+    error.hidden = true;
+    error.textContent = "";
+    phone.removeAttribute("aria-invalid");
+    phone.setAttribute("aria-describedby", "waze-phone-hint");
+  };
+
+  const showStatus = (message) => {
+    status.hidden = false;
+    status.textContent = message;
+  };
+
+  const openShare = (trigger) => {
+    if (lastTrigger && lastTrigger !== trigger) lastTrigger.setAttribute("aria-expanded", "false");
+    lastTrigger = trigger;
+    trigger.setAttribute("aria-expanded", "true");
+    clearError();
+    clearStatus();
+    if (!dialog.open) dialog.showModal();
+    phone.focus();
+  };
+
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const trigger = target.closest("[data-waze-share]");
+    if (!(trigger instanceof HTMLElement)) return;
+    if (!isDesktopNavigation()) return;
+    event.preventDefault();
+    openShare(trigger);
+  });
+
+  dialog.addEventListener("close", () => {
+    if (lastTrigger instanceof HTMLElement) {
+      lastTrigger.setAttribute("aria-expanded", "false");
+      lastTrigger.focus();
+    }
+  });
+
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  form.querySelector("[data-waze-close]")?.addEventListener("click", () => dialog.close());
+
+  const message = () => shareText(config.message, config.address, config.wazeUrl);
+  const ios = /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+  const errorText = (code) => {
+    const messages = {
+      empty: config.labels.errorEmpty,
+      invalid: config.labels.errorInvalid,
+      api: config.labels.errorApi,
+      "no-endpoint": config.labels.errorEndpoint,
+    };
+    return messages[code] || config.labels.errorInvalid;
+  };
+
+  const finishClient = (channel, url) => {
+    clearError();
+    phone.value = "";
+    if (channel === "sms") {
+      window.location.href = url;
+      showStatus(config.labels.openedSms);
+      return;
+    }
+    const opened = window.open(url, "_blank", "noopener,noreferrer");
+    showStatus(opened ? config.labels.openedWhatsapp : config.labels.popupBlocked);
+  };
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const submitter = event.submitter;
+    const channel = submitter instanceof HTMLElement && submitter.dataset.channel === "sms" ? "sms" : "whatsapp";
+    const text = message();
+    if (config.mode !== "api") {
+      const normalized = normalizeIsraeliMobile(phone.value);
+      if (!normalized.ok) {
+        showError(errorText(normalized.code));
+        phone.focus();
+        return;
+      }
+      const url = channel === "sms" ? smsShareUrl(normalized.e164, text, { ios }) : whatsappShareUrl(normalized.e164, text);
+      finishClient(channel, url);
+      return;
+    }
+    sendNavigationLink({
+      number: phone.value,
+      channel,
+      text,
+      mode: "api",
+      endpoint: config.endpoint,
+      ios,
+    }).then((result) => {
+      if (!result.ok) {
+        showError(errorText(result.code));
+        phone.focus();
+        return;
+      }
+      clearError();
+      phone.value = "";
+      showStatus(config.labels.openedApi);
+    });
+  });
+
+  copyButton?.addEventListener("click", async () => {
+    const url = config.wazeUrl;
+    try {
+      await navigator.clipboard.writeText(url);
+      showStatus(config.labels.copied);
+    } catch {
+      const urlNode = form.querySelector(".share-url");
+      if (urlNode instanceof HTMLElement) {
+        const range = document.createRange();
+        range.selectNodeContents(urlNode);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+      const more = form.querySelector(".share-more");
+      if (more instanceof HTMLDetailsElement) more.open = true;
+      showStatus(config.labels.copyFailed);
+    }
+  });
+}
+
 setupNav();
 setupMap();
 setupForm();
 setupBot();
+setupShare();

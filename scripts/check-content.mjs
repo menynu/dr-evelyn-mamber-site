@@ -72,6 +72,24 @@ if (!he.includes('lang="he"') || !he.includes('dir="rtl"')) failures.push("Hebre
 if (!en.includes('lang="en"') || !en.includes('dir="ltr"')) failures.push("English home is not ltr");
 if (!he.includes("Dentist") || !he.includes("MedicalClinic")) failures.push("home is missing clinic schema");
 
+const contact = await readFile(path.join(root, "dist/contact/index.html"), "utf8");
+const contactEn = await readFile(path.join(root, "dist/en/contact/index.html"), "utf8");
+if (!contact.includes("waze.com/ul?ll=")) failures.push("Hebrew contact is missing the Waze link");
+if (!contact.includes("ניווט ב-Waze")) failures.push("Hebrew contact is missing the Waze label");
+if (!contact.includes("ניווט ב-Google Maps")) failures.push("Hebrew contact is missing the Google Maps label");
+if (!contact.includes("שליחת ניווט Waze לטלפון")) failures.push("Hebrew contact is missing the desktop Waze label");
+if (!contact.includes("search.google.com/local/writereview?placeid=")) failures.push("Hebrew contact is missing the review link");
+if (!contact.includes('id="waze-share-dialog"')) failures.push("Hebrew contact is missing the share dialog");
+if (!contact.includes("המספר נשאר במכשיר הזה")) failures.push("Hebrew contact is missing the privacy note");
+if (!contactEn.includes("Navigate with Waze")) failures.push("English contact is missing the Waze label");
+if (!contactEn.includes("Send Waze to my phone")) failures.push("English contact is missing the desktop Waze label");
+if (!contactEn.includes("Navigate with Google Maps")) failures.push("English contact is missing the Google Maps label");
+if (!he.includes("כתיבת ביקורת בגוגל")) failures.push("Hebrew home is missing the review call to action");
+if (!en.includes("Write a Google review")) failures.push("English home is missing the review call to action");
+if (he.includes("/dr-evelyn-mamber-site") && !process.env.GITHUB_PAGES_BASE) {
+  failures.push("local build should not bake in the GitHub Pages base path");
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);

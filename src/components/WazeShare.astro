@@ -1,0 +1,109 @@
+---
+import QRCode from "qrcode";
+import Icon from "./Icon.astro";
+import { getCopy } from "../content";
+import { clinic } from "../lib/config";
+import { addressLine, mapsDirectionsHref, reviewHref, wazeHref } from "../lib/public";
+import { jsonLdScript } from "../lib/schema";
+import type { Locale } from "../lib/role";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getCopy(locale);
+const waze = wazeHref();
+const qrRaw = await QRCode.toString(waze, {
+  type: "svg",
+  margin: 1,
+  width: 168,
+  errorCorrectionLevel: "M",
+  color: { dark: "#1a2624", light: "#ffffff" },
+});
+if (/<script|foreignObject|onload=/i.test(qrRaw)) {
+  throw new Error("QR SVG contained unexpected markup");
+}
+const qr = qrRaw
+  .replace(/<\?xml[^?]*\?>/g, "")
+  .replace(/<svg\b([^>]*)>/, '<svg$1 aria-hidden="true" focusable="false">');
+const shareConfig = {
+  wazeUrl: waze,
+  mapsUrl: mapsDirectionsHref(),
+  reviewUrl: reviewHref(),
+  mode: clinic.navShareMode,
+  endpoint: clinic.navShareEndpoint,
+  locale,
+  address: addressLine(locale),
+  message: t.navShare.message.replaceAll("{{wazeUrl}}", waze),
+  labels: {
+    waze: t.navTo.waze,
+    wazeDesktop: t.navTo.wazeDesktop,
+    google: t.navTo.google,
+    review: t.review.button,
+    newTab: t.newTab,
+    copied: t.navShare.copied,
+    copyFailed: t.navShare.copyFailed,
+    openedWhatsapp: t.navShare.openedWhatsapp,
+    openedSms: t.navShare.openedSms,
+    openedApi: t.navShare.openedApi,
+    popupBlocked: t.navShare.popupBlocked,
+    errorEmpty: t.navShare.errorEmpty,
+    errorInvalid: t.navShare.errorInvalid,
+    errorApi: t.navShare.errorApi,
+    errorEndpoint: t.navShare.errorEndpoint,
+  },
+};
+---
+<dialog id="waze-share-dialog" class="share-dialog" data-waze-dialog aria-labelledby="waze-share-title">
+  <form class="share-form" data-waze-form novalidate>
+    <div class="share-head">
+      <h2 id="waze-share-title">{t.navShare.title}</h2>
+      <button type="button" data-waze-close>
+        <span class="sr-only">{t.navShare.close}</span>
+        <Icon name="close" />
+      </button>
+    </div>
+    <p>{clinic.navShareMode === "api" ? t.navShare.ledeApi : t.navShare.lede}</p>
+    <label class="field">
+      <span>{t.navShare.phoneLabel} ({t.required})</span>
+      <input
+        name="phone"
+        type="tel"
+        inputmode="tel"
+        autocomplete="tel"
+        dir="ltr"
+        maxlength="20"
+        data-waze-phone
+        aria-required="true"
+        aria-describedby="waze-phone-hint"
+        placeholder="050-1234567"
+      />
+    </label>
+    <p class="hint" id="waze-phone-hint">{t.navShare.phoneHint}</p>
+    <p class="form-error" id="waze-share-error" data-waze-error role="alert" hidden></p>
+    <div class="cta-row">
+      <button class="btn btn-primary" type="submit" data-channel="whatsapp">{t.navShare.whatsapp}</button>
+      <button class="btn btn-secondary" type="submit" data-channel="sms">{t.navShare.sms}</button>
+    </div>
+    <p class="hint" data-waze-privacy>
+      {clinic.navShareMode === "api" ? t.navShare.privacyApi : t.navShare.privacy}
+    </p>
+    <p class="hint" data-waze-status role="status" hidden></p>
+    <details class="share-more">
+      <summary>{t.navShare.more}</summary>
+      <p>
+        <a href={waze} target="_blank" rel="noopener noreferrer">
+          {t.navShare.openWaze}
+          <span class="sr-only"> {t.newTab}</span>
+        </a>
+      </p>
+      <p class="share-url" dir="ltr" lang="en">{waze}</p>
+      <button class="btn btn-secondary" type="button" data-waze-copy>{t.navShare.copy}</button>
+      <figure class="qr-figure">
+        <div class="qr-frame" role="img" aria-label={t.navShare.qrLabel} set:html={qr} />
+        <figcaption>{t.navShare.qrCaption}</figcaption>
+      </figure>
+    </details>
+  </form>
+</dialog>
+<script id="nav-share-config" type="application/json" set:html={jsonLdScript(shareConfig)} />

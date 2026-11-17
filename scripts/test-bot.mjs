@@ -12,6 +12,8 @@ const cases = [
   ["he", "כואב לו קצת כשמצחצחים", "pain"],
   ["he", "כמה זה עולה", "payment"],
   ["he", "יש חניה לעגלה?", "access"],
+  ["he", "ניווט בוייז", "address"],
+  ["he", "אפשר לכתוב ביקורת בגוגל", "review"],
   ["he", "שלום, מה נשמע היום", "fallback"],
   ["en", "what are your opening hours", "hours"],
   ["en", "where are you located", "address"],
@@ -19,6 +21,8 @@ const cases = [
   ["en", "my child is scared of the dentist", "fearful"],
   ["en", "a permanent tooth was knocked out", "emergency"],
   ["en", "how much does a visit cost", "payment"],
+  ["en", "can I get directions in waze", "address"],
+  ["en", "how do I write a google review", "review"],
   ["en", "hello there", "fallback"],
 ];
 
@@ -33,6 +37,6 @@ assert.match(answerById("emergency", faq.he).text, /אינו|לא ייעוץ|ל�
 assert.match(answerQuestion("", faq.he).text, /אינו ייעוץ|אינו ייעוץ רפואי|אינו/);
 
 const quick = faq.he.quickReplies.map((item) => item.label);
-assert.deepEqual(quick, ["שעות פעילות", "כתובת", "קביעת תור", "ביקור ראשון", "מקרה חירום"]);
+assert.deepEqual(quick, ["שעות פעילות", "כתובת / ניווט", "קביעת תור", "ביקור ראשון", "מקרה חירום", "ביקורת בגוגל"]);
 
 console.log(`bot tests passed (${cases.length} questions)`);
