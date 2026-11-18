@@ -373,7 +373,7 @@ export const copyEn = {
       {
         heading: "Hosting",
         paragraphs: [
-          "If the site is hosted on Cloudflare or Vercel, that provider may keep a short technical log, such as an IP address, for security and operations. The site does not set marketing cookies.",
+          "The site is hosted on GitHub Pages. The hosting provider may keep short technical logs (for example an IP address) as part of operating the service. The details are in [GitHub's privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). The site does not set marketing cookies.",
         ],
       },
       {
