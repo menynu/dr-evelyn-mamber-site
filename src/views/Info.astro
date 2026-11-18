@@ -22,6 +22,24 @@ const updated = new Intl.DateTimeFormat(locale === "he" ? "he-IL" : "en-GB", {
   year: "numeric",
   timeZone: "UTC",
 }).format(new Date(`${clinic.updatedAt}T00:00:00Z`));
+
+type ParagraphPart = { text: string; href?: string };
+
+/** Renders [label](https://...) as a link. Other paragraphs stay plain text. */
+function paragraphParts(paragraph: string): ParagraphPart[] {
+  const parts: ParagraphPart[] = [];
+  const re = /\[([^\]]+)\]\((https:\/\/[^)\s]+)\)/g;
+  let last = 0;
+  for (const match of paragraph.matchAll(re)) {
+    const start = match.index ?? 0;
+    if (start > last) parts.push({ text: paragraph.slice(last, start) });
+    parts.push({ text: match[1], href: match[2] });
+    last = start + match[0].length;
+  }
+  if (last < paragraph.length) parts.push({ text: paragraph.slice(last) });
+  if (parts.length === 0) parts.push({ text: paragraph });
+  return parts;
+}
 ---
 <Base locale={locale} title={meta.title} description={meta.description} path={path} breadcrumbs={crumbs}>
   <article class="container page-intro prose">
@@ -33,7 +51,20 @@ const updated = new Intl.DateTimeFormat(locale === "he" ? "he-IL" : "en-GB", {
     {content.sections.map((section) => (
       <section>
         {section.heading && <h2>{section.heading}</h2>}
-        {"paragraphs" in section && section.paragraphs?.map((paragraph) => <p>{paragraph}</p>)}
+        {"paragraphs" in section && section.paragraphs?.map((paragraph) => (
+          <p>
+            {paragraphParts(paragraph).map((part) =>
+              part.href ? (
+                <a href={part.href} target="_blank" rel="noopener noreferrer">
+                  {part.text}
+                  <span class="sr-only"> {t.newTab}</span>
+                </a>
+              ) : (
+                part.text
+              )
+            )}
+          </p>
+        ))}
         {"list" in section && section.list && (
           <ul>
             {section.list.map((item) => <li>{item}</li>)}

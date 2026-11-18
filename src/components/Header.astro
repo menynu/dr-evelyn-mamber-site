@@ -38,7 +38,7 @@ const fullName = locale === "he" ? clinic.doctorNameHe : clinic.doctorNameEn;
       })}
       <a class="nav-call" href={`tel:${clinic.phoneTel}`}>{t.call} <span class="ltr">{clinic.phoneDisplay}</span></a>
     </nav>
-    <a class="lang-switch" href={otherHref} hreflang={other} lang={other}>
+    <a class="lang-switch" href={otherHref} hreflang={other === "he" ? "he-IL" : "en"} lang={other}>
       {other === "en" ? "EN" : "עב"}
       <span class="sr-only">{other === "en" ? " English" : " עברית"}</span>
     </a>
