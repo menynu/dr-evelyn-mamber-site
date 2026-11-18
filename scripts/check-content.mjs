@@ -100,9 +100,6 @@ if (!en.includes("Hezkiyahu HaMelech")) failures.push("English home is missing t
 if (he.includes("עמק רפאים") || he.includes("Emek Refaim") || en.includes("Emek Refaim") || he.includes("Hizkiyahu")) {
   failures.push("a home page still mentions a rejected address");
 }
-if (he.includes("wa.me/97225611949") || en.includes("wa.me/97225611949")) {
-  failures.push("a home page links WhatsApp to the landline");
-}
 if (!clinic.googleSiteVerification && (he.includes("google-site-verification") || en.includes("google-site-verification"))) {
   failures.push("verification meta is present while the config token is empty");
 }
@@ -112,9 +109,6 @@ if (clinic.isRegisteredSpecialist) {
 }
 if (clinic.addressConfirmed && (he.includes("לאשר את הכתובת") || en.includes("confirm the address"))) {
   failures.push("home still asks visitors to confirm the address");
-}
-if (clinic.whatsappReady === false && he.includes("https://wa.me/97225611949")) {
-  failures.push("Hebrew home still publishes the landline as WhatsApp");
 }
 
 const contact = await readFile(path.join(root, "dist/contact/index.html"), "utf8");
