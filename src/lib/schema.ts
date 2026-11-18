@@ -1,7 +1,7 @@
 import { clinic } from "./config";
 import { absoluteUrl, localePath } from "./paths";
 import { mapsHref } from "./public";
-import type { Locale } from "./role";
+import { roleTitle, type Locale } from "./role";
 
 export type Crumb = { name: string; path: string };
 
@@ -27,18 +27,24 @@ export function buildSchema(input: SchemaInput) {
   const websiteId = `${homeUrl}#website`;
   const spoken = clinic.spokenLanguages.map((code) => (code === "he" ? "he" : code));
 
+  const doctorId = `${homeUrl}#doctor`;
+  const roleHe = roleTitle("he");
+  const roleEn = roleTitle("en");
   const clinicNode: Record<string, unknown> = {
-    "@type": ["Dentist", "MedicalClinic"],
+    "@type": ["Dentist", "MedicalBusiness", "MedicalClinic"],
     "@id": clinicId,
     name: `${clinic.doctorNameHe} — ${clinic.clinicNameHe}`,
     alternateName: `${clinic.doctorNameEn} ${clinic.clinicNameEn}`,
     description:
       input.locale === "he"
-        ? `${clinic.doctorNameHe}, רופאת שיניים לילדים ב${clinic.cityHe}.`
-        : `${clinic.doctorNameEn}, pediatric dentist in ${clinic.cityEn}.`,
+        ? `${clinic.doctorNameHe}, ${roleHe} ב${clinic.cityHe}.`
+        : `${clinic.doctorNameEn}, ${roleEn} in ${clinic.cityEn}.`,
     url: homeUrl,
     telephone: clinic.phoneSchema,
-    medicalSpecialty: "http://schema.org/Dentistry",
+    medicalSpecialty: clinic.isRegisteredSpecialist
+      ? ["https://schema.org/Pediatric", "https://schema.org/Dentistry"]
+      : "https://schema.org/Dentistry",
+    employee: { "@id": doctorId },
     image: absoluteUrl("/og.png"),
     address: {
       "@type": "PostalAddress",
@@ -76,6 +82,36 @@ export function buildSchema(input: SchemaInput) {
   const sameAs = [clinic.social.facebook, clinic.social.instagram, clinic.social.googleBusiness].filter(Boolean);
   if (sameAs.length) clinicNode.sameAs = sameAs;
 
+  const personNode: Record<string, unknown> = {
+    "@type": "Person",
+    "@id": doctorId,
+    name: clinic.doctorNameHe,
+    alternateName: clinic.doctorNameEn,
+    jobTitle: [roleHe, roleEn],
+    url: absoluteUrl(localePath("he", "/about/")),
+    worksFor: { "@id": clinicId },
+    knowsLanguage: spoken,
+    telephone: clinic.phoneSchema,
+    hasOccupation: {
+      "@type": "Occupation",
+      name: roleHe,
+      alternateName: roleEn,
+    },
+  };
+  if (clinic.isRegisteredSpecialist) {
+    personNode.hasCredential = {
+      "@type": "EducationalOccupationalCredential",
+      credentialCategory: "professional registration",
+      name: roleHe,
+      alternateName: roleEn,
+      recognizedBy: {
+        "@type": "GovernmentOrganization",
+        name: "משרד הבריאות",
+        alternateName: "Ministry of Health",
+      },
+    };
+  }
+
   const graph: Record<string, unknown>[] = [
     {
       "@type": "WebSite",
@@ -86,6 +122,7 @@ export function buildSchema(input: SchemaInput) {
       publisher: { "@id": clinicId },
     },
     clinicNode,
+    personNode,
     {
       "@type": "WebPage",
       "@id": `${pageUrl}#webpage`,
@@ -133,11 +170,7 @@ export function buildSchema(input: SchemaInput) {
       datePublished: clinic.updatedAt,
       dateModified: clinic.updatedAt,
       mainEntityOfPage: pageUrl,
-      author: {
-        "@type": "Organization",
-        name: clinic.doctorNameHe,
-        url: homeUrl,
-      },
+      author: { "@id": doctorId },
       publisher: { "@id": clinicId },
     });
   }

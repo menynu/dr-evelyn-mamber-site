@@ -5,7 +5,7 @@ import NavActions from "../components/NavActions.astro";
 import ReviewCta from "../components/ReviewCta.astro";
 import { getCopy } from "../content";
 import { clinic } from "../lib/config";
-import { accessText, addressLine, fundsText, hoursText, mapsEmbedSrc, mapsHref, whatsappHref } from "../lib/public";
+import { accessText, addressLine, addressStatus, fundsText, hoursText, mapsEmbedSrc, mapsHref, whatsappHref } from "../lib/public";
 import type { Locale } from "../lib/role";
 import Base from "../layouts/Base.astro";
 
@@ -91,6 +91,7 @@ const wa = whatsappHref();
           <p><a class="ltr" href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a></p>
           <h2>{t.contact.addressLabel}</h2>
           <p>{addressLine(locale)}</p>
+          {addressStatus(locale) && <p class="hint">{addressStatus(locale)}</p>}
           <p class="hint">{t.contact.addressHint}</p>
           <h2>{t.contact.hoursLabel}</h2>
           {clinic.hoursConfirmed ? (

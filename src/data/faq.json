@@ -58,7 +58,7 @@
         "topic": "practical",
         "keywords": ["כתובת", "איפה", "מיקום", "הגעה", "ניווט", "מפה", "רחוב", "חזקיהו", "וייז", "waze", "גוגל מפות"],
         "q": "מה הכתובת של המרפאה?",
-        "a": "המרפאה נמצאת ב{{address}}. לפני הביקור הראשון כדאי לאשר את הכתובת בטלפון {{phone}}. אפשר גם לפתוח ניווט ב-Waze או ב-Google Maps."
+        "a": "המרפאה נמצאת ב{{address}}. {{addressStatus}}אפשר לפתוח ניווט ב-Waze או ב-Google Maps."
       },
       {
         "id": "review",
@@ -72,7 +72,7 @@
         "topic": "practical",
         "keywords": ["תור", "לקבוע", "קביעת תור", "לתאם", "תיאום", "וואטסאפ", "ווצאפ", "whatsapp", "להתקשר", "שיחה חוזרת", "טופס"],
         "q": "איך קובעים תור?",
-        "a": "אפשר להתקשר ל־{{phone}}, או להשאיר בעמוד «צור קשר» בקשה לשיחה חוזרת: שם הורה, טלפון, גיל הילד או הילדה, וזמן נוח לשיחה. אין צורך לכתוב פרטים רפואיים."
+        "a": "{{bookHow}}"
       },
       {
         "id": "access",
@@ -244,7 +244,7 @@
         "topic": "practical",
         "keywords": ["address", "where", "location", "directions", "map", "street", "waze", "google maps"],
         "q": "What is the clinic address?",
-        "a": "The clinic is at {{address}}. Before a first visit, confirm the address by phone: {{phone}}. You can also open directions in Waze or Google Maps."
+        "a": "The clinic is at {{address}}. {{addressStatus}}You can open directions in Waze or Google Maps."
       },
       {
         "id": "review",
@@ -258,7 +258,7 @@
         "topic": "practical",
         "keywords": ["book", "booking", "appointment", "schedule a", "whatsapp", "call"],
         "q": "How do I book a visit?",
-        "a": "Call {{phone}} or send a WhatsApp message. A name, phone number, the child's age, and a preferred time are enough. Please don't include medical details."
+        "a": "{{bookHow}}"
       },
       {
         "id": "access",

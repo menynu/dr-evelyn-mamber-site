@@ -41,9 +41,9 @@ export const copyEn = {
   ],
   meta: {
     home: {
-      title: "{{doctor}} | {{role}} in {{city}}",
+      title: "Pediatric dentist in Jerusalem | {{doctor}}",
       description:
-        "Pediatric dental clinic of {{doctor}} in {{city}}. A first visit by age one, checkups, prevention, and guidance for parents. Call {{phone}}.",
+        "{{doctor}}, {{role}} in {{city}}. A first visit by age one, checkups, prevention, and guidance for parents. Call {{phone}}.",
     },
     about: {
       title: "About {{doctor}} | {{role}}",
@@ -78,9 +78,9 @@ export const copyEn = {
     },
   },
   home: {
-    kicker: "{{clinic}} in {{city}}",
-    title: "Care that starts with an explanation, and moves at your child's pace",
-    lede: "{{doctor}}, {{role}}. From the first tooth: an exam, prevention, and a plan parents understand before anything is done.",
+    kicker: "{{doctor}} · {{role}}",
+    title: "Pediatric dentist in Jerusalem",
+    lede: "Care that starts with an explanation, and moves at your child's pace. From the first tooth: an exam, prevention, and a plan parents understand before anything is done.",
     primaryCta: "Call to book",
     secondaryCta: "Book on WhatsApp",
     trust: [
@@ -124,7 +124,7 @@ export const copyEn = {
   about: {
     kicker: "The clinic",
     title: "About {{doctor}}",
-    lede: "{{doctor}} is a {{role}} in {{city}}. Visits are built around a clear explanation for parents and a pace a child can manage.",
+    lede: "{{doctor}}, {{role}}, sees children in {{city}}. Visits are built around a clear explanation for parents and a pace a child can manage.",
     factsTitle: "What this page includes",
     facts: "This page has the background that was given for the website. Questions about training and experience are welcome when you call.",
     approachTitle: "How care is approached",
@@ -136,7 +136,6 @@ export const copyEn = {
     ],
     affiliationKicker: "Teaching",
     affiliationTitle: "Academic link",
-    affiliationNote: "The academic appointment details are waiting for the doctor's confirmation.",
     licenseLabel: "License number",
   },
   servicesPage: {
@@ -227,11 +226,11 @@ export const copyEn = {
   },
   contact: {
     kicker: "Book a visit",
-    title: "Call, or send booking details",
-    lede: "The form asks only for a parent's name, a phone number, the child's age, and a preferred time. There is no medical field, and the site does not store what you type.",
+    title: "{{contactTitle}}",
+    lede: "{{contactLede}}",
     phoneLabel: "Phone",
     addressLabel: "Address",
-    addressHint: "Before a first visit, confirm the address and the arrival time by phone.",
+    addressHint: "The arrival time is arranged by phone.",
     hoursLabel: "Hours",
     fundsLabel: "Health funds",
     accessLabel: "Arrival and access",
@@ -244,8 +243,7 @@ export const copyEn = {
     timeLabel: "Preferred time",
     timePlaceholder: "For example: Tuesday morning",
     timeHint: "A day and a time. No medical description.",
-    consent:
-      "I agree to be contacted about booking a visit. The message will include only the name, phone number, child's age, and preferred time. Sending opens WhatsApp or email on my device, and the website does not store the details.",
+    consent: "I agree to be contacted about booking a visit. {{formChannel}}",
     submit: "Send on WhatsApp",
     emailSubmit: "Send by email",
     error: "To send, fill in every field and tick the consent line.",
@@ -361,7 +359,7 @@ export const copyEn = {
       {
         heading: "The booking form",
         paragraphs: [
-          "The fields are a parent's name, a phone number, the child's age, and a preferred time. There is no field for a complaint, a diagnosis, or medicines. Send opens WhatsApp or email on your device. From that moment the conversation is with that provider, under their policy, and it is not stored on this site.",
+          "The fields are a parent's name, a phone number, the child's age, and a preferred time. There is no field for a complaint, a diagnosis, or medicines. {{formPrivacy}}",
           "Please don't write medical details in the message. What the dentist needs to know is said by phone or at the clinic.",
         ],
       },
@@ -374,7 +372,7 @@ export const copyEn = {
       {
         heading: "Hosting",
         paragraphs: [
-          "If the site is hosted on Cloudflare or Vercel, that provider may keep a short technical log, such as an IP address, for security and operations. The site does not set marketing cookies.",
+          "The site is hosted on GitHub Pages. The hosting provider may keep short technical logs (for example an IP address) as part of operating the service. The details are in [GitHub's privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). The site does not set marketing cookies.",
         ],
       },
       {

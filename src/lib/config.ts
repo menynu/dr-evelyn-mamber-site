@@ -20,6 +20,8 @@ export type ClinicConfig = {
   siteUrl: string;
   isRegisteredSpecialist: boolean;
   updatedAt: string;
+  googleSiteVerification: string;
+  addressConfirmed: boolean;
   doctorNameHe: string;
   doctorNameEn: string;
   doctorShortHe: string;
@@ -80,9 +82,14 @@ export function loadClinic(input: ClinicConfig): ClinicConfig {
   if (typeof input.isRegisteredSpecialist !== "boolean") {
     fail("isRegisteredSpecialist צריך להיות true או false");
   }
+  if (typeof input.addressConfirmed !== "boolean") fail("addressConfirmed צריך להיות true או false");
   if (typeof input.whatsappReady !== "boolean") fail("whatsappReady צריך להיות true או false");
   if (typeof input.hoursConfirmed !== "boolean") fail("hoursConfirmed צריך להיות true או false");
   if (typeof input.showAffiliation !== "boolean") fail("showAffiliation צריך להיות true או false");
+  assertString(input.googleSiteVerification, "googleSiteVerification");
+  if (input.googleSiteVerification && !/^[A-Za-z0-9_-]{10,200}$/.test(input.googleSiteVerification)) {
+    fail("googleSiteVerification צריך להיות הקוד מגוגל בלבד, בלי תגית HTML, או ריק");
+  }
   for (const field of [
     "doctorNameHe",
     "doctorNameEn",

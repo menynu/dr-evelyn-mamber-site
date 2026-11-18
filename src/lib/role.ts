@@ -10,7 +10,7 @@ export function roleTitle(locale: Locale): string {
   if (clinic.isRegisteredSpecialist) {
     return locale === "he"
       ? "מומחית לרפואת שיניים לילדים"
-      : "specialist in pediatric dentistry";
+      : "Specialist in Pediatric Dentistry";
   }
   return locale === "he" ? "רופאת שיניים לילדים" : "pediatric dentist";
 }
