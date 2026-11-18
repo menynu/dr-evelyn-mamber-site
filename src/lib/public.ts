@@ -8,6 +8,102 @@ export function addressLine(locale: Locale): string {
     : `${clinic.streetEn}, ${clinic.cityEn}`;
 }
 
+/** Empty once the street is confirmed. Shown only while addressConfirmed is false. */
+export function addressStatus(locale: Locale): string {
+  if (clinic.addressConfirmed) return "";
+  return locale === "he"
+    ? "הכתובת באתר עדיין ממתינה לאישור. לפני הביקור כדאי לאשר אותה בטלפון. "
+    : "The address on this site is still waiting for confirmation. Please confirm it by phone before the visit. ";
+}
+
+export function bookHow(locale: Locale): string {
+  const phone = clinic.phoneDisplay;
+  if (locale === "he") {
+    if (clinic.whatsappReady) {
+      return `מתקשרים ל־${phone} או שולחים הודעת וואטסאפ. בהודעה מספיקים שם ההורה, טלפון, גיל הילד או הילדה, וזמן מועדף. אין צורך לכתוב פרטים רפואיים.`;
+    }
+    return `וואטסאפ עדיין לא פעיל באתר, כי אין עדיין מספר נייד. מתקשרים ל־${phone}. בשיחה מספיקים שם ההורה, גיל הילד או הילדה, וזמן מועדף. אין צורך לכתוב פרטים רפואיים.`;
+  }
+  if (clinic.whatsappReady) {
+    return `Call ${phone} or send a WhatsApp message. A name, phone number, the child's age, and a preferred time are enough. Please don't include medical details.`;
+  }
+  return `WhatsApp is not available on this site yet, because there is no mobile number. Call ${phone}. A parent's name, the child's age, and a preferred time are enough. Please don't include medical details.`;
+}
+
+function formChannel(locale: Locale): string {
+  const wa = clinic.whatsappReady && clinic.whatsappNumber;
+  const email = clinic.email.trim();
+  if (locale === "he") {
+    if (wa && email) {
+      return "בהודעה ייכללו רק השם, הטלפון, גיל הילד או הילדה והזמן המועדף. השליחה נפתחת בוואטסאפ או בדוא״ל במכשיר שלי, והאתר אינו שומר את הפרטים.";
+    }
+    if (wa) {
+      return "בהודעה ייכללו רק השם, הטלפון, גיל הילד או הילדה והזמן המועדף. השליחה נפתחת בוואטסאפ במכשיר שלי, והאתר אינו שומר את הפרטים.";
+    }
+    if (email) {
+      return "בהודעה ייכללו רק השם, הטלפון, גיל הילד או הילדה והזמן המועדף. השליחה נפתחת בדוא״ל במכשיר שלי, והאתר אינו שומר את הפרטים.";
+    }
+    return "הלחיצה מחייגת למרפאה. האתר אינו שומר את הפרטים שהוקלדו, והם לא נשלחים.";
+  }
+  if (wa && email) {
+    return "The message will include only the name, phone number, child's age, and preferred time. Sending opens WhatsApp or email on my device, and the website does not store the details.";
+  }
+  if (wa) {
+    return "The message will include only the name, phone number, child's age, and preferred time. Sending opens WhatsApp on my device, and the website does not store the details.";
+  }
+  if (email) {
+    return "The message will include only the name, phone number, child's age, and preferred time. Sending opens email on my device, and the website does not store the details.";
+  }
+  return "The button calls the clinic. The website does not store what was typed, and it does not send it.";
+}
+
+function formPrivacy(locale: Locale): string {
+  const wa = clinic.whatsappReady && clinic.whatsappNumber;
+  const email = clinic.email.trim();
+  if (locale === "he") {
+    if (wa && email) {
+      return "בלחיצה על שליחה נפתחת הודעת וואטסאפ או דוא״ל במכשיר שלכם. מרגע זה השיחה מתנהלת אצל אותו ספק, לפי המדיניות שלו, ולא נשמרת באתר.";
+    }
+    if (wa) {
+      return "בלחיצה על שליחה נפתחת הודעת וואטסאפ במכשיר שלכם. מרגע זה השיחה מתנהלת אצל ספק הוואטסאפ, לפי המדיניות שלו, ולא נשמרת באתר.";
+    }
+    if (email) {
+      return "בלחיצה על שליחה נפתחת הודעת דוא״ל במכשיר שלכם. מרגע זה השיחה מתנהלת אצל ספק הדוא״ל, לפי המדיניות שלו, ולא נשמרת באתר.";
+    }
+    return "הלחיצה מחייגת למרפאה. האתר אינו שומר את מה שהוקלד ואינו שולח אותו.";
+  }
+  if (wa && email) {
+    return "Send opens WhatsApp or email on your device. From that moment the conversation is with that provider, under their policy, and it is not stored on this site.";
+  }
+  if (wa) {
+    return "Send opens WhatsApp on your device. From that moment the conversation is with WhatsApp, under their policy, and it is not stored on this site.";
+  }
+  if (email) {
+    return "Send opens email on your device. From that moment the conversation is with that provider, under their policy, and it is not stored on this site.";
+  }
+  return "The button calls the clinic. The website does not store what was typed and does not send it.";
+}
+
+export function contactTitle(locale: Locale): string {
+  const canSend = (clinic.whatsappReady && clinic.whatsappNumber) || clinic.email.trim();
+  if (locale === "he") return canSend ? "מתקשרים, או שולחים פרטי תיאום" : "מתקשרים לקביעת תור";
+  return canSend ? "Call, or send booking details" : "Call to book a visit";
+}
+
+export function contactLede(locale: Locale): string {
+  const canSend = (clinic.whatsappReady && clinic.whatsappNumber) || clinic.email.trim();
+  if (locale === "he") {
+    if (canSend) {
+      return "בטופס יש רק שם הורה, טלפון, גיל הילד או הילדה, וזמן מועדף. אין שדה למידע רפואי, והאתר לא שומר את מה שממלאים.";
+    }
+    return "מתקשרים למרפאה ומתאמים שעה. בטופס יש רק שם הורה, טלפון, גיל הילד או הילדה, וזמן מועדף. הלחיצה מחייגת, והאתר לא שולח ולא שומר את מה שהוקלד.";
+  }
+  if (canSend) {
+    return "The form asks only for a parent's name, a phone number, the child's age, and a preferred time. There is no medical field, and the site does not store what you type.";
+  }
+  return "Call the clinic to arrange a time. The form asks only for a parent's name, a phone number, the child's age, and a preferred time. The button places a call, and the site does not send or store what you type.";
+}
+
 export function hoursText(locale: Locale): string {
   if (!clinic.hoursConfirmed) {
     return locale === "he" ? clinic.hoursNoteHe : clinic.hoursNoteEn;
@@ -54,6 +150,12 @@ export function getVars(locale: Locale): Record<string, string> {
     funds: fundsText(locale),
     access: accessText(locale),
     email: clinic.email,
+    addressStatus: addressStatus(locale),
+    bookHow: bookHow(locale),
+    formChannel: formChannel(locale),
+    formPrivacy: formPrivacy(locale),
+    contactTitle: contactTitle(locale),
+    contactLede: contactLede(locale),
   };
 }
 

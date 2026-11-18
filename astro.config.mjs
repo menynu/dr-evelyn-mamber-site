@@ -30,6 +30,15 @@ export default defineConfig({
         },
       },
       filter: (page) => !page.includes("/404"),
+      lastmod: new Date(`${clinic.updatedAt}T00:00:00.000Z`),
+      serialize(item) {
+        const links = item.links?.map((link) => ({ ...link }));
+        if (links && !links.some((link) => link.lang === "x-default")) {
+          const hebrew = links.find((link) => link.lang === "he-IL");
+          if (hebrew) links.push({ lang: "x-default", url: hebrew.url });
+        }
+        return links ? { ...item, links } : item;
+      },
     }),
   ],
 });

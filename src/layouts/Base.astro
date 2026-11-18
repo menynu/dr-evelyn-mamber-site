@@ -5,6 +5,10 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import WazeShare from "../components/WazeShare.astro";
 import { getCopy } from "../content";
+import he400 from "@fontsource/rubik/files/rubik-hebrew-400-normal.woff2?url";
+import he700 from "@fontsource/rubik/files/rubik-hebrew-700-normal.woff2?url";
+import lat400 from "@fontsource/rubik/files/rubik-latin-400-normal.woff2?url";
+import lat700 from "@fontsource/rubik/files/rubik-latin-700-normal.woff2?url";
 import { clinic } from "../lib/config";
 import { absoluteUrl, localePath } from "../lib/paths";
 import type { Locale } from "../lib/role";
@@ -46,9 +50,16 @@ const ogAlt = locale === "he" ? "en_US" : "he_IL";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preload" href={he400} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={he700} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={lat400} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={lat700} as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="robots" content={noindex ? "noindex, follow" : "index, follow"} />
+    {clinic.googleSiteVerification && (
+      <meta name="google-site-verification" content={clinic.googleSiteVerification} />
+    )}
     <meta name="theme-color" content="#1c4f48" />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang="he-IL" href={heUrl} />

@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import clinic from "../clinic.config.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const banned = [
@@ -38,9 +39,20 @@ async function filesIn(dir, acc = []) {
   return acc;
 }
 
+const allowedPhrases = clinic.isRegisteredSpecialist
+  ? ["מומחית לרפואת שיניים לילדים", "Specialist in Pediatric Dentistry"]
+  : [];
+
+function stripAllowed(text) {
+  let out = text;
+  for (const phrase of allowedPhrases) out = out.split(phrase).join("");
+  return out;
+}
+
 function hits(text, rule) {
-  if (rule instanceof RegExp) return rule.test(text);
-  return text.includes(rule);
+  const source = stripAllowed(text);
+  if (rule instanceof RegExp) return rule.test(source);
+  return source.includes(rule);
 }
 
 const failures = [];
@@ -70,7 +82,40 @@ const he = await readFile(path.join(root, "dist/index.html"), "utf8");
 const en = await readFile(path.join(root, "dist/en/index.html"), "utf8");
 if (!he.includes('lang="he"') || !he.includes('dir="rtl"')) failures.push("Hebrew home is not rtl");
 if (!en.includes('lang="en"') || !en.includes('dir="ltr"')) failures.push("English home is not ltr");
-if (!he.includes("Dentist") || !he.includes("MedicalClinic")) failures.push("home is missing clinic schema");
+if (!he.includes("Dentist") || !he.includes("MedicalClinic") || !he.includes("MedicalBusiness")) {
+  failures.push("home is missing clinic schema");
+}
+if (!he.includes('"@type":"Person"') && !he.includes('"@type": "Person"')) {
+  failures.push("home is missing the doctor Person schema");
+}
+if (!he.includes("חזקיהו המלך 36")) failures.push("home is missing the confirmed street");
+if (!he.includes("רופאת שיניים לילדים בירושלים")) {
+  failures.push("Hebrew home title or heading is missing the search phrase");
+}
+if (!/<h1[^>]*>רופאת שיניים לילדים בירושלים<\/h1>/.test(he)) {
+  failures.push("Hebrew home H1 is not the search phrase");
+}
+if (!en.includes("Pediatric dentist in Jerusalem")) failures.push("English home is missing the search phrase");
+if (!en.includes("Hezkiyahu HaMelech")) failures.push("English home is missing the confirmed street");
+if (he.includes("עמק רפאים") || he.includes("Emek Refaim") || en.includes("Emek Refaim") || he.includes("Hizkiyahu")) {
+  failures.push("a home page still mentions a rejected address");
+}
+if (he.includes("wa.me/97225611949") || en.includes("wa.me/97225611949")) {
+  failures.push("a home page links WhatsApp to the landline");
+}
+if (!clinic.googleSiteVerification && (he.includes("google-site-verification") || en.includes("google-site-verification"))) {
+  failures.push("verification meta is present while the config token is empty");
+}
+if (clinic.isRegisteredSpecialist) {
+  if (!he.includes("מומחית לרפואת שיניים לילדים")) failures.push("Hebrew home is missing the registered title");
+  if (!en.includes("Specialist in Pediatric Dentistry")) failures.push("English home is missing the registered title");
+}
+if (clinic.addressConfirmed && (he.includes("לאשר את הכתובת") || en.includes("confirm the address"))) {
+  failures.push("home still asks visitors to confirm the address");
+}
+if (clinic.whatsappReady === false && he.includes("https://wa.me/97225611949")) {
+  failures.push("Hebrew home still publishes the landline as WhatsApp");
+}
 
 const contact = await readFile(path.join(root, "dist/contact/index.html"), "utf8");
 const contactEn = await readFile(path.join(root, "dist/en/contact/index.html"), "utf8");
