@@ -1,0 +1,191 @@
+---
+import { getCopy } from "../content";
+import { phonePattern } from "../lib/phone.js";
+import { absoluteUrl, localePath } from "../lib/paths";
+import UrgentNotice from "./UrgentNotice.astro";
+
+const t = getCopy("he");
+// After the first real submission, FormSubmit emails an activation link.
+// Once that is confirmed, replace the address below with the random alias
+// FormSubmit provides, so the mailbox is not exposed in the HTML.
+const formAction = "https://formsubmit.co/meny205@gmail.com";
+const subject = "בקשה לשיחה חוזרת – אתר ממבר";
+const nextUrl = absoluteUrl("/contact/thanks/");
+const privacyHref = localePath("he", "/privacy/");
+const phoneError = "הקלידו מספר טלפון ישראלי.";
+const medicalNote = "אין צורך לפרט כאן מידע רפואי. נדבר על הכול בטלפון.";
+const times = ["בוקר", "צהריים", "אחה״צ"];
+---
+<div class="callback-block">
+  <UrgentNotice />
+  <form
+    class="form callback-form"
+    id="callback-form"
+    action={formAction}
+    method="post"
+    accept-charset="UTF-8"
+    data-callback-form
+    data-phone-error={phoneError}
+    data-required-error={t.contact.error}
+    aria-labelledby="callback-title"
+    aria-describedby="callback-medical-note"
+  >
+    <input type="hidden" name="_subject" value={subject} />
+    <input type="hidden" name="_template" value="table" />
+    <input type="hidden" name="_captcha" value="true" />
+    <input type="hidden" name="_next" value={nextUrl} />
+
+    <h2 id="callback-title">{t.contact.formTitle}</h2>
+
+    <label class="field">
+      <span>{t.contact.parentLabel} ({t.required})</span>
+      <input name="שם הורה" type="text" autocomplete="name" maxlength="80" required />
+    </label>
+
+    <label class="field">
+      <span>{t.contact.phoneField} ({t.required})</span>
+      <input
+        id="callback-phone"
+        name="טלפון"
+        type="tel"
+        inputmode="tel"
+        dir="ltr"
+        autocomplete="tel"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        maxlength="22"
+        pattern={phonePattern}
+        aria-describedby="callback-phone-hint"
+        required
+      />
+      <span class="hint" id="callback-phone-hint">
+        מספר ישראלי, למשל <span class="ltr">050-1234567</span> או <span class="ltr">02-1234567</span>.
+      </span>
+    </label>
+
+    <label class="field">
+      <span>{t.contact.ageLabel} ({t.required})</span>
+      <select name="גיל הילד/ה" required>
+        <option value="">{t.contact.agePlaceholder}</option>
+        {t.contact.ages.map((age) => <option value={age}>{age}</option>)}
+      </select>
+    </label>
+
+    <label class="field">
+      <span>{t.contact.timeLabel} ({t.required})</span>
+      <select name="זמן נוח לשיחה" required>
+        <option value="">{t.contact.timePlaceholder}</option>
+        {times.map((time) => <option value={time}>{time}</option>)}
+      </select>
+    </label>
+
+    <p class="hint" id="callback-medical-note">{medicalNote}</p>
+
+    <div class="check">
+      <input
+        id="callback-consent"
+        name="הסכמה"
+        type="checkbox"
+        value={t.contact.consent}
+        required
+      />
+      <label for="callback-consent">{t.contact.consent}</label>
+    </div>
+    <p class="hint">
+      <a class="consent-link" href={privacyHref}>מדיניות הפרטיות</a>
+    </p>
+
+    <p class="form-error" id="callback-error" data-form-error role="alert" hidden></p>
+    <div class="honeypot" aria-hidden="true">
+      <label>
+        השאירו את השדה הזה ריק
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" value="" />
+      </label>
+    </div>
+    <button class="btn btn-primary" type="submit">{t.contact.submit}</button>
+  </form>
+</div>
+
+<script>
+  import { isIsraeliPhone } from "../lib/phone.js";
+
+  const form = document.querySelector("[data-callback-form]");
+  if (form instanceof HTMLFormElement) {
+    const phone = form.querySelector("#callback-phone");
+    const error = form.querySelector("[data-form-error]");
+    const phoneMessage = form.dataset.phoneError || "";
+    const requiredMessage = form.dataset.requiredError || "";
+
+    const showError = (message: string) => {
+      if (!(error instanceof HTMLElement)) return;
+      error.hidden = false;
+      error.textContent = message;
+    };
+
+    const clearError = () => {
+      if (!(error instanceof HTMLElement)) return;
+      error.hidden = true;
+      error.textContent = "";
+    };
+
+    if (phone instanceof HTMLInputElement) {
+      const syncPhone = () => {
+        const value = phone.value.trim();
+        const formatBad = value !== "" && !isIsraeliPhone(value);
+        phone.setCustomValidity(formatBad ? phoneMessage : "");
+        if (!formatBad) {
+          phone.removeAttribute("aria-invalid");
+          phone.setAttribute("aria-describedby", "callback-phone-hint");
+        }
+        return !formatBad;
+      };
+
+      phone.addEventListener("input", () => {
+        if (syncPhone() && error instanceof HTMLElement && error.textContent === phoneMessage) clearError();
+      });
+
+      form.addEventListener(
+        "invalid",
+        (event) => {
+          const field = event.target;
+          if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement)) return;
+          if (field === phone && phone.value.trim() && !isIsraeliPhone(phone.value)) {
+            phone.setCustomValidity(phoneMessage);
+            phone.setAttribute("aria-invalid", "true");
+            phone.setAttribute("aria-describedby", "callback-phone-hint callback-error");
+            showError(phoneMessage);
+            return;
+          }
+          if (field.validity.valueMissing) field.setCustomValidity(requiredMessage);
+          if (error instanceof HTMLElement && error.hidden) showError(requiredMessage);
+        },
+        true,
+      );
+
+      form.addEventListener("input", (event) => {
+        const field = event.target;
+        if (field === phone) return;
+        if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) field.setCustomValidity("");
+      });
+
+      form.addEventListener("change", (event) => {
+        const field = event.target;
+        if (field instanceof HTMLSelectElement || (field instanceof HTMLInputElement && field.type === "checkbox")) {
+          field.setCustomValidity("");
+        }
+      });
+
+      form.addEventListener("submit", (event) => {
+        if (!syncPhone()) {
+          event.preventDefault();
+          phone.setAttribute("aria-invalid", "true");
+          phone.setAttribute("aria-describedby", "callback-phone-hint callback-error");
+          showError(phoneMessage);
+          phone.focus();
+          phone.reportValidity();
+        }
+      });
+    }
+  }
+</script>

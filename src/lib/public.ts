@@ -19,10 +19,7 @@ export function addressStatus(locale: Locale): string {
 export function bookHow(locale: Locale): string {
   const phone = clinic.phoneDisplay;
   if (locale === "he") {
-    if (clinic.whatsappReady) {
-      return `מתקשרים ל־${phone} או שולחים הודעת וואטסאפ. בהודעה מספיקים שם ההורה, טלפון, גיל הילד או הילדה, וזמן מועדף. אין צורך לכתוב פרטים רפואיים.`;
-    }
-    return `וואטסאפ עדיין לא פעיל באתר, כי אין עדיין מספר נייד. מתקשרים ל־${phone}. בשיחה מספיקים שם ההורה, גיל הילד או הילדה, וזמן מועדף. אין צורך לכתוב פרטים רפואיים.`;
+    return `אפשר להתקשר ל־${phone}, או להשאיר בעמוד «צור קשר» בקשה לשיחה חוזרת: שם הורה, טלפון, גיל הילד או הילדה, וזמן נוח לשיחה. אין צורך לכתוב פרטים רפואיים.`;
   }
   if (clinic.whatsappReady) {
     return `Call ${phone} or send a WhatsApp message. A name, phone number, the child's age, and a preferred time are enough. Please don't include medical details.`;
@@ -34,16 +31,7 @@ function formChannel(locale: Locale): string {
   const wa = clinic.whatsappReady && clinic.whatsappNumber;
   const email = clinic.email.trim();
   if (locale === "he") {
-    if (wa && email) {
-      return "בהודעה ייכללו רק השם, הטלפון, גיל הילד או הילדה והזמן המועדף. השליחה נפתחת בוואטסאפ או בדוא״ל במכשיר שלי, והאתר אינו שומר את הפרטים.";
-    }
-    if (wa) {
-      return "בהודעה ייכללו רק השם, הטלפון, גיל הילד או הילדה והזמן המועדף. השליחה נפתחת בוואטסאפ במכשיר שלי, והאתר אינו שומר את הפרטים.";
-    }
-    if (email) {
-      return "בהודעה ייכללו רק השם, הטלפון, גיל הילד או הילדה והזמן המועדף. השליחה נפתחת בדוא״ל במכשיר שלי, והאתר אינו שומר את הפרטים.";
-    }
-    return "הלחיצה מחייגת למרפאה. האתר אינו שומר את הפרטים שהוקלדו, והם לא נשלחים.";
+    return "אני מסכים/ה שהפרטים ישמשו רק לחזרה אליי לתיאום תור";
   }
   if (wa && email) {
     return "The message will include only the name, phone number, child's age, and preferred time. Sending opens WhatsApp or email on my device, and the website does not store the details.";
@@ -61,16 +49,7 @@ function formPrivacy(locale: Locale): string {
   const wa = clinic.whatsappReady && clinic.whatsappNumber;
   const email = clinic.email.trim();
   if (locale === "he") {
-    if (wa && email) {
-      return "בלחיצה על שליחה נפתחת הודעת וואטסאפ או דוא״ל במכשיר שלכם. מרגע זה השיחה מתנהלת אצל אותו ספק, לפי המדיניות שלו, ולא נשמרת באתר.";
-    }
-    if (wa) {
-      return "בלחיצה על שליחה נפתחת הודעת וואטסאפ במכשיר שלכם. מרגע זה השיחה מתנהלת אצל ספק הוואטסאפ, לפי המדיניות שלו, ולא נשמרת באתר.";
-    }
-    if (email) {
-      return "בלחיצה על שליחה נפתחת הודעת דוא״ל במכשיר שלכם. מרגע זה השיחה מתנהלת אצל ספק הדוא״ל, לפי המדיניות שלו, ולא נשמרת באתר.";
-    }
-    return "הלחיצה מחייגת למרפאה. האתר אינו שומר את מה שהוקלד ואינו שולח אותו.";
+    return "השליחה מעבירה את הפרטים לשירות FormSubmit, והוא שולח אותם בדוא״ל למרפאה. האתר אינו שומר עותק. אחרי השליחה נפתח עמוד אימות של FormSubmit, ואחר כך עמוד תודה באתר. האתר אינו מוסיף עוגיות שיווק.";
   }
   if (wa && email) {
     return "Send opens WhatsApp or email on your device. From that moment the conversation is with that provider, under their policy, and it is not stored on this site.";
@@ -86,17 +65,14 @@ function formPrivacy(locale: Locale): string {
 
 export function contactTitle(locale: Locale): string {
   const canSend = (clinic.whatsappReady && clinic.whatsappNumber) || clinic.email.trim();
-  if (locale === "he") return canSend ? "מתקשרים, או שולחים פרטי תיאום" : "מתקשרים לקביעת תור";
+  if (locale === "he") return "מתקשרים, או מבקשים שיחה חוזרת";
   return canSend ? "Call, or send booking details" : "Call to book a visit";
 }
 
 export function contactLede(locale: Locale): string {
   const canSend = (clinic.whatsappReady && clinic.whatsappNumber) || clinic.email.trim();
   if (locale === "he") {
-    if (canSend) {
-      return "בטופס יש רק שם הורה, טלפון, גיל הילד או הילדה, וזמן מועדף. אין שדה למידע רפואי, והאתר לא שומר את מה שממלאים.";
-    }
-    return "מתקשרים למרפאה ומתאמים שעה. בטופס יש רק שם הורה, טלפון, גיל הילד או הילדה, וזמן מועדף. הלחיצה מחייגת, והאתר לא שולח ולא שומר את מה שהוקלד.";
+    return "בטופס יש רק שם הורה, טלפון, גיל הילד או הילדה, וזמן נוח לשיחה. אין שדה למידע רפואי. הפרטים נשלחים בדוא״ל למרפאה, והאתר לא שומר עותק.";
   }
   if (canSend) {
     return "The form asks only for a parent's name, a phone number, the child's age, and a preferred time. There is no medical field, and the site does not store what you type.";

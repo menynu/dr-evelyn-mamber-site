@@ -1,5 +1,6 @@
 ---
 import Breadcrumb from "../components/Breadcrumb.astro";
+import CallbackForm from "../components/CallbackForm.astro";
 import NavActions from "../components/NavActions.astro";
 import ReviewCta from "../components/ReviewCta.astro";
 import { getCopy } from "../content";
@@ -26,60 +27,64 @@ const wa = whatsappHref();
   </div>
   <section class="section">
     <div class="container split">
-      <form
-        class="form"
-        method="dialog"
-        data-booking-form
-        data-template={t.contact.template}
-        data-whatsapp={wa}
-        data-tel={clinic.phoneTel}
-        data-error={t.contact.error}
-      >
-        <h2>{t.contact.formTitle}</h2>
-        <label class="field">
-          <span>{t.contact.parentLabel} ({t.required})</span>
-          <input name="parent" type="text" autocomplete="name" maxlength="80" required />
-        </label>
-        <label class="field">
-          <span>{t.contact.phoneField} ({t.required})</span>
-          <input name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" required />
-        </label>
-        <label class="field">
-          <span>{t.contact.ageLabel} ({t.required})</span>
-          <select name="age" required>
-            <option value="">{t.contact.agePlaceholder}</option>
-            {t.contact.ages.map((age) => <option value={age}>{age}</option>)}
-          </select>
-        </label>
-        <label class="field">
-          <span>{t.contact.timeLabel} ({t.required})</span>
-          <input name="time" type="text" maxlength="80" required placeholder={t.contact.timePlaceholder} aria-describedby="time-hint" />
-          <span class="hint" id="time-hint">{t.contact.timeHint}</span>
-        </label>
-        <label class="check">
-          <input name="consent" type="checkbox" required />
-          <span>{t.contact.consent}</span>
-        </label>
-        <p class="form-error" data-form-error hidden></p>
-        <button class="btn btn-primary" type="submit">{wa ? t.contact.submit : t.call}</button>
-        {clinic.email && (
-          <button
-            class="btn btn-secondary"
-            type="button"
-            data-email-button
-            data-email={clinic.email}
-            data-subject={t.contact.emailSubject}
-          >
-            {t.contact.emailSubmit}
-          </button>
-        )}
-        <noscript>
-          <p>
-            <a href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a>
-            {wa && <> · <a href={whatsappHref(t.contact.genericWhatsapp)}>{t.whatsapp}</a></>}
-          </p>
-        </noscript>
-      </form>
+      {locale === "he" ? (
+        <CallbackForm />
+      ) : (
+        <form
+          class="form"
+          method="dialog"
+          data-booking-form
+          data-template={t.contact.template}
+          data-whatsapp={wa}
+          data-tel={clinic.phoneTel}
+          data-error={t.contact.error}
+        >
+          <h2>{t.contact.formTitle}</h2>
+          <label class="field">
+            <span>{t.contact.parentLabel} ({t.required})</span>
+            <input name="parent" type="text" autocomplete="name" maxlength="80" required />
+          </label>
+          <label class="field">
+            <span>{t.contact.phoneField} ({t.required})</span>
+            <input name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" required />
+          </label>
+          <label class="field">
+            <span>{t.contact.ageLabel} ({t.required})</span>
+            <select name="age" required>
+              <option value="">{t.contact.agePlaceholder}</option>
+              {t.contact.ages.map((age) => <option value={age}>{age}</option>)}
+            </select>
+          </label>
+          <label class="field">
+            <span>{t.contact.timeLabel} ({t.required})</span>
+            <input name="time" type="text" maxlength="80" required placeholder={t.contact.timePlaceholder} aria-describedby="time-hint" />
+            <span class="hint" id="time-hint">{t.contact.timeHint}</span>
+          </label>
+          <label class="check">
+            <input name="consent" type="checkbox" required />
+            <span>{t.contact.consent}</span>
+          </label>
+          <p class="form-error" data-form-error hidden></p>
+          <button class="btn btn-primary" type="submit">{wa ? t.contact.submit : t.call}</button>
+          {clinic.email && (
+            <button
+              class="btn btn-secondary"
+              type="button"
+              data-email-button
+              data-email={clinic.email}
+              data-subject={t.contact.emailSubject}
+            >
+              {t.contact.emailSubmit}
+            </button>
+          )}
+          <noscript>
+            <p>
+              <a href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a>
+              {wa && <> · <a href={whatsappHref(t.contact.genericWhatsapp)}>{t.whatsapp}</a></>}
+            </p>
+          </noscript>
+        </form>
+      )}
       <div class="stack">
         <div class="card detail-list">
           <h2>{t.contact.phoneLabel}</h2>

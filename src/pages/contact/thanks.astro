@@ -1,0 +1,23 @@
+---
+import UrgentNotice from "../../components/UrgentNotice.astro";
+import { clinic } from "../../lib/config";
+import { localePath } from "../../lib/paths";
+import Base from "../../layouts/Base.astro";
+---
+<Base
+  locale="he"
+  title={`תודה | ${clinic.doctorNameHe}`}
+  description="תודה, קיבלנו את הפנייה ונחזור אליכם בהקדם."
+  path="/contact/thanks/"
+  noindex
+>
+  <div class="container page-intro thanks">
+    <h1>תודה</h1>
+    <p class="lede">תודה, קיבלנו את הפנייה ונחזור אליכם בהקדם.</p>
+    <UrgentNotice />
+    <div class="cta-row">
+      <a class="btn btn-primary" href={localePath("he", "/")}>לדף הבית</a>
+      <a class="btn btn-secondary" href={localePath("he", "/contact/")}>חזרה ליצירת קשר</a>
+    </div>
+  </div>
+</Base>

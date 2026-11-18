@@ -29,7 +29,7 @@ export default defineConfig({
           en: "en",
         },
       },
-      filter: (page) => !page.includes("/404"),
+      filter: (page) => !page.includes("/404") && !page.includes("/contact/thanks"),
       lastmod: new Date(`${clinic.updatedAt}T00:00:00.000Z`),
       serialize(item) {
         const links = item.links?.map((link) => ({ ...link }));
