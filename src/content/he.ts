@@ -367,7 +367,7 @@ export const copyHe = {
       {
         heading: "אירוח האתר",
         paragraphs: [
-          "אם האתר מתארח ב־Cloudflare או ב־Vercel, הספק עשוי לשמור לוג טכני קצר (למשל כתובת IP) לצורך אבטחה ותפעול. אין באתר עוגיות שיווק.",
+          "האתר מתארח ב־GitHub Pages. ספק האירוח עשוי לשמור לוגים טכניים קצרים (למשל כתובת IP) כחלק מתפעול השירות. הפירוט מופיע ב[מדיניות הפרטיות של GitHub](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). אין באתר עוגיות שיווק.",
         ],
       },
       {
