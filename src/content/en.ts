@@ -136,7 +136,6 @@ export const copyEn = {
     ],
     affiliationKicker: "Teaching",
     affiliationTitle: "Academic link",
-    affiliationNote: "The academic appointment details are waiting for the doctor's confirmation.",
     licenseLabel: "License number",
   },
   servicesPage: {

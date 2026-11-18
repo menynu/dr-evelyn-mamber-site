@@ -131,7 +131,6 @@ export const copyHe = {
     ],
     affiliationKicker: "הוראה",
     affiliationTitle: "זיקה אקדמית",
-    affiliationNote: "פרטי המינוי האקדמי ממתינים לאישור הרופאה.",
     licenseLabel: "מספר רישיון",
   },
   servicesPage: {
