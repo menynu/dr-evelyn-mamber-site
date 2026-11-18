@@ -29,7 +29,7 @@ export default defineConfig({
           en: "en",
         },
       },
-      filter: (page) => !page.includes("/404"),
+      filter: (page) => !page.includes("/404") && !page.includes("/contact/thanks"),
     }),
   ],
 });
