@@ -23,7 +23,7 @@ const updated = new Intl.DateTimeFormat(locale === "he" ? "he-IL" : "en-GB", {
   timeZone: "UTC",
 }).format(new Date(`${clinic.updatedAt}T00:00:00Z`));
 
-type ParagraphPart = { text: string; href?: string };
+type ParagraphPart = { text: string; href?: string; ltr?: boolean };
 
 /** Renders [label](https://...) as a link. Other paragraphs stay plain text. */
 function paragraphParts(paragraph: string): ParagraphPart[] {
@@ -38,7 +38,30 @@ function paragraphParts(paragraph: string): ParagraphPart[] {
   }
   if (last < paragraph.length) parts.push({ text: paragraph.slice(last) });
   if (parts.length === 0) parts.push({ text: paragraph });
-  return parts;
+  return wrapPhoneLtr(parts);
+}
+
+/** Keep clinic.phoneDisplay in .ltr without hardcoding the digits in markup. */
+function wrapPhoneLtr(parts: ParagraphPart[]): ParagraphPart[] {
+  const phone = clinic.phoneDisplay;
+  if (!phone) return parts;
+  const out: ParagraphPart[] = [];
+  for (const part of parts) {
+    if (part.href || part.ltr) {
+      out.push(part);
+      continue;
+    }
+    let remaining = part.text;
+    let index = remaining.indexOf(phone);
+    while (index !== -1) {
+      if (index > 0) out.push({ text: remaining.slice(0, index) });
+      out.push({ text: phone, ltr: true });
+      remaining = remaining.slice(index + phone.length);
+      index = remaining.indexOf(phone);
+    }
+    if (remaining) out.push({ text: remaining });
+  }
+  return out;
 }
 ---
 <Base locale={locale} title={meta.title} description={meta.description} path={path} breadcrumbs={crumbs}>
@@ -59,6 +82,8 @@ function paragraphParts(paragraph: string): ParagraphPart[] {
                   {part.text}
                   <span class="sr-only"> {t.newTab}</span>
                 </a>
+              ) : part.ltr ? (
+                <span class="ltr">{part.text}</span>
               ) : (
                 part.text
               )
