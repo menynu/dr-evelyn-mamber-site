@@ -361,6 +361,7 @@ export const copyEn = {
         paragraphs: [
           "The fields are a parent's name, a phone number, the child's age, and a preferred time. There is no field for a complaint, a diagnosis, or medicines. {{formPrivacy}}",
           "Please don't write medical details in the message. What the dentist needs to know is said by phone or at the clinic.",
+          "On the English contact page, Send opens WhatsApp (a Meta service) with the details you entered. Nothing is sent until you press send in WhatsApp. The message goes to the clinic's number and is used only to arrange an appointment. WhatsApp handles the message under Meta's privacy policy, and the clinic keeps it in order to get back to you. This website does not keep a copy. You can call {{phone}} instead.",
         ],
       },
       {
