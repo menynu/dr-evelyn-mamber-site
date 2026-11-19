@@ -83,6 +83,7 @@ export const copyEn = {
     lede: "Care that starts with an explanation, and moves at your child's pace. From the first tooth: an exam, prevention, and a plan parents understand before anything is done.",
     primaryCta: "Call to book",
     secondaryCta: "Book on WhatsApp",
+    callbackLink: "Go to the booking form",
     trust: [
       { title: "By age one", text: "A first visit around the first tooth, even if nothing seems wrong." },
       { title: "Parents included", text: "You hear what was seen and which options exist, and decide together." },

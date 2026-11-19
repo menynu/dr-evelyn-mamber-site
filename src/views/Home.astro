@@ -43,6 +43,11 @@ const whyIcons = ["users", "leaf", "shield"];
             </a>
           )}
         </div>
+        <p class="hero-links">
+          <a href={`${localePath(locale, "/contact/")}#${locale === "he" ? "callback-form" : "booking-form"}`}>
+            {t.home.callbackLink}
+          </a>
+        </p>
         </div>
       <div class="hero-art">
         <HeroArt />
