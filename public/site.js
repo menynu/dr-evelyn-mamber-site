@@ -1,4 +1,4 @@
-import { isAnalyticsOptOut, setAnalyticsOptOut, setupAnalytics, track } from "./analytics.js";
+import { setupAnalytics, track } from "./analytics.js";
 import { classifyLink } from "./link-classify.js";
 import { answerById, answerQuestion } from "./bot-core.js";
 import {
@@ -483,13 +483,13 @@ document.addEventListener(
   const btn = document.querySelector("[data-mmb-optout]");
   if (btn instanceof HTMLButtonElement) {
     const sync = () => {
-      const on = isAnalyticsOptOut();
+      const on = window.__mamberIsOptOut?.() === true;
       btn.setAttribute("aria-pressed", on ? "true" : "false");
       btn.textContent = on ? btn.dataset.labelOff || "" : btn.dataset.labelOn || "";
     };
     sync();
     btn.addEventListener("click", () => {
-      setAnalyticsOptOut(!isAnalyticsOptOut());
+      window.__mamberOptOut?.(!(window.__mamberIsOptOut?.() === true));
       sync();
     });
   }

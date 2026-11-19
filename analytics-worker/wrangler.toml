@@ -12,12 +12,9 @@ database_id = "REPLACE_WITH_D1_DATABASE_ID"
 crons = ["0 3 * * *"]
 
 [vars]
-# Comma-separated origins, e.g. https://menynu.github.io,http://127.0.0.1:4392
 ALLOWED_ORIGINS = "https://menynu.github.io"
-# Daily event cap per visitor id (hashed)
 MAX_EVENTS_PER_DAY = "60"
-# Circuit breaker: max writes in a rolling minute before rejecting
 WRITE_SPIKE_LIMIT = "400"
+RETENTION_DAYS = "90"
 
-# Secrets (set with wrangler secret put):
-# V_PEPPER, IP_SALT_SECRET, DASH_USER, DASH_PASS, WEEKLY_TOKEN
+# Secrets: V_PEPPER, IP_SALT_SECRET, DASH_USER, DASH_PASS, WEEKLY_TOKEN

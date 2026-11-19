@@ -180,11 +180,20 @@ if (!privacy.includes("Cloudflare") || !privacyEn.includes("Cloudflare")) {
 if (!privacy.includes("2 ימים") || !privacyEn.includes("2 days")) {
   failures.push("privacy pages are missing the 2-day IP-hash retention note");
 }
+if (!privacy.includes("90 ימים") || !privacyEn.includes("90 days")) {
+  failures.push("privacy pages are missing the 90-day retention note");
+}
+if (!privacy.includes("מזהה אקראי") || !privacyEn.includes("random identifier")) {
+  failures.push("privacy pages must describe the rotating random identifier");
+}
+if (!privacy.includes("בשרת המונה") || !privacyEn.includes("The counter stores")) {
+  failures.push("privacy pages must attribute storage to the counter, not 'we'");
+}
+if (privacy.includes("אצלנו") || privacyEn.includes("We store")) {
+  failures.push("privacy pages must not say 'אצלנו' / 'We store'");
+}
 if (!privacy.includes('data-mmb-optout') || !privacyEn.includes("data-mmb-optout")) {
   failures.push("privacy pages are missing the measurement opt-out toggle");
-}
-if (!privacy.includes("13 חודשים") || !privacyEn.includes("13 months")) {
-  failures.push("privacy pages are missing the 13-month retention note");
 }
 if (!he.includes("כתיבת ביקורת בגוגל")) failures.push("Hebrew home is missing the review call to action");
 if (!en.includes("Write a Google review")) failures.push("English home is missing the review call to action");

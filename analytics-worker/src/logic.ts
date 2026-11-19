@@ -12,7 +12,7 @@ export type IncomingEvent = {
 
 export type ParsedEvent = {
   e: string;
-  p: string;
+  p?: string;
   v?: string;
   f?: string;
   l?: string;
@@ -22,6 +22,8 @@ export type ParsedEvent = {
 
 const BOT_UA =
   /bot|crawl|spider|slurp|facebookexternalhit|preview|wget|curl|python-requests|headless|phantom|selenium/i;
+
+export const CLICK_EVENTS = new Set(["tel", "whatsapp", "waze", "google_maps", "google_review"]);
 
 export function isBot(ua: string | null): boolean {
   if (!ua) return false;
@@ -42,13 +44,10 @@ export async function sha256Hex(input: string): Promise<string> {
   return [...new Uint8Array(dig)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/** Days to keep hashed-IP rate_limits rows (cron purge). Never store IP-derived values in events. */
 export const RATE_LIMIT_RETENTION_DAYS = 2;
+export const DEFAULT_RETENTION_DAYS = 90;
 
-/**
- * Hash for events.v_hash. Identified visitors get sha256(pepper|v).
- * No-id events (GPC/DNT/opt-out/callback) store NULL — never an IP-derived value.
- */
+/** Identified → sha256(pepper|v). No-id → null (never IP-derived). */
 export async function visitorHashForEvent(v: string | undefined, pepper: string): Promise<string | null> {
   if (!v) return null;
   return sha256Hex(`${pepper}|${v}`);
@@ -64,10 +63,8 @@ export function parseBody(raw: string): { ok: true; event: ParsedEvent } | { ok:
   }
   const e = String(json.e || "").trim();
   if (!ALLOWED_EVENTS.has(e)) return { ok: false, error: "bad_event" };
-  const p = normalizePath(String(json.p || ""));
-  if (!isAllowedPath(p)) return { ok: false, error: "bad_path" };
 
-  const out: ParsedEvent = { e, p };
+  const out: ParsedEvent = { e };
 
   if (json.v != null && json.v !== "") {
     const v = String(json.v);
@@ -85,8 +82,7 @@ export function parseBody(raw: string): { ok: true; event: ParsedEvent } | { ok:
     out.l = l;
   }
   if (json.s != null && json.s !== "") {
-    const s = Number(json.s);
-    if (s !== 1) return { ok: false, error: "bad_s" };
+    if (Number(json.s) !== 1) return { ok: false, error: "bad_s" };
     out.s = 1;
   }
   if (json.n != null && json.n !== "") {
@@ -95,9 +91,17 @@ export function parseBody(raw: string): { ok: true; event: ParsedEvent } | { ok:
     out.n = n;
   }
 
-  if (e === "callback_form_success") {
+  if (e === "pageview") {
+    const p = normalizePath(String(json.p || ""));
+    if (!isAllowedPath(p)) return { ok: false, error: "bad_path" };
+    out.p = p;
+    if (!out.n) return { ok: false, error: "pageview_needs_n" };
+  } else if (e === "callback_form_success") {
     if (out.v) return { ok: false, error: "thanks_no_v" };
     if (!out.n) return { ok: false, error: "thanks_needs_n" };
+    if (json.p != null && json.p !== "") return { ok: false, error: "lead_no_path" };
+  } else if (CLICK_EVENTS.has(e)) {
+    if (json.p != null && json.p !== "") return { ok: false, error: "click_no_path" };
   }
 
   return { ok: true, event: out };
@@ -105,119 +109,121 @@ export function parseBody(raw: string): { ok: true; event: ParsedEvent } | { ok:
 
 export function originAllowed(origin: string | null, allowlist: string): boolean {
   if (!origin) return false;
-  const allowed = allowlist
+  return allowlist
     .split(",")
     .map((s) => s.trim())
-    .filter(Boolean);
-  return allowed.includes(origin);
+    .filter(Boolean)
+    .includes(origin);
 }
 
-export function weekBounds(now = Date.now()): { start: number; end: number; prevStart: number; prevEnd: number } {
+export function weekBounds(now = Date.now()) {
   const end = now;
   const start = end - 7 * 24 * 60 * 60 * 1000;
-  const prevEnd = start;
-  const prevStart = prevEnd - 7 * 24 * 60 * 60 * 1000;
-  return { start, end, prevStart, prevEnd };
+  return { start, end, prevStart: start - 7 * 24 * 60 * 60 * 1000, prevEnd: start };
 }
 
-export type EventRow = {
-  ts: number;
-  day: string;
-  event: string;
-  path: string;
-  v_hash: string | null;
-  f: string | null;
-  l: string | null;
-  s: number | null;
-  n: string | null;
-};
+export type PageViewRow = { ts: number; day: string; path: string; n: string };
+export type VisitRow = { ts: number; day: string; v_hash: string; f: string | null; l: string | null; s: number | null };
+export type ClickRow = { ts: number; day: string; event: string; v_hash: string | null; f: string | null; s: number | null };
+export type LeadRow = { ts: number; day: string; n: string };
 
-const CLICKS = new Set(["tel", "whatsapp", "waze", "google_maps", "google_review"]);
-const LEADS = new Set(["tel", "whatsapp", "callback_form_success"]);
+export function rowHasPathAndVHash(row: Record<string, unknown>): boolean {
+  return Boolean(row.path != null && row.path !== "" && row.v_hash != null && row.v_hash !== "");
+}
 
-export function computeWeekly(rows: EventRow[], periodStart: number, periodEnd: number) {
-  const inPeriod = rows.filter((r) => r.ts >= periodStart && r.ts < periodEnd);
-  const visitors = new Set(inPeriod.filter((r) => r.v_hash).map((r) => r.v_hash as string));
-  const visits = inPeriod.filter((r) => r.event === "pageview" && r.s === 1).length;
+export function shouldRotateId(created: string | undefined, today: string, retentionDays = DEFAULT_RETENTION_DAYS): boolean {
+  if (!created || !/^\d{4}-\d{2}-\d{2}$/.test(created)) return true;
+  const c = Date.parse(created + "T00:00:00Z");
+  const t = Date.parse(today + "T00:00:00Z");
+  if (Number.isNaN(c) || Number.isNaN(t)) return true;
+  return t - c >= retentionDays * 24 * 60 * 60 * 1000;
+}
 
+export function computeWeekly(
+  pageViews: PageViewRow[],
+  visits: VisitRow[],
+  clicks: ClickRow[],
+  leads: LeadRow[],
+  periodStart: number,
+  periodEnd: number,
+  retentionDays: number,
+) {
+  const pv = pageViews.filter((r) => r.ts >= periodStart && r.ts < periodEnd);
+  const vs = visits.filter((r) => r.ts >= periodStart && r.ts < periodEnd);
+  const ck = clicks.filter((r) => r.ts >= periodStart && r.ts < periodEnd);
+  const ld = leads.filter((r) => r.ts >= periodStart && r.ts < periodEnd);
+
+  const visitors = new Set(vs.map((r) => r.v_hash));
+  const visitStarts = vs.filter((r) => r.s === 1).length;
   const startDay = dayKey(periodStart);
   const endDay = dayKey(periodEnd - 1);
-  const newVisitors = new Set(
-    inPeriod.filter((r) => r.v_hash && r.f && r.f >= startDay && r.f <= endDay).map((r) => r.v_hash as string),
-  );
+  const newVisitors = new Set(vs.filter((r) => r.f && r.f >= startDay && r.f <= endDay).map((r) => r.v_hash));
   const returning = new Set([...visitors].filter((v) => !newVisitors.has(v)));
 
-  const clicks: Record<
-    string,
-    { total: number; distinct: number; new: number; returning: number }
-  > = {};
-  for (const ch of CLICKS) {
-    const list = inPeriod.filter((r) => r.event === ch);
+  const clickStats: Record<string, { total: number; distinct: number; new: number; returning: number }> = {};
+  for (const ch of CLICK_EVENTS) {
+    const list = ck.filter((r) => r.event === ch);
     const distinct = new Set(list.map((r) => r.v_hash).filter(Boolean) as string[]);
     const newC = [...distinct].filter((v) => newVisitors.has(v)).length;
-    clicks[ch] = {
-      total: list.length,
-      distinct: distinct.size,
-      new: newC,
-      returning: distinct.size - newC,
-    };
+    clickStats[ch] = { total: list.length, distinct: distinct.size, new: newC, returning: distinct.size - newC };
   }
 
-  const leadRows = inPeriod.filter((r) => LEADS.has(r.event));
-  const leadVisitors = new Set(leadRows.map((r) => r.v_hash).filter(Boolean) as string[]);
-  const leadNew = [...leadVisitors].filter((v) => newVisitors.has(v)).length;
-  const leadRet = leadVisitors.size - leadNew;
-  const conversion =
-    visitors.size === 0 ? 0 : Math.round((leadVisitors.size / visitors.size) * 1000) / 1000;
+  const telWa = ck.filter((r) => r.event === "tel" || r.event === "whatsapp");
+  const leadClickers = new Set(telWa.map((r) => r.v_hash).filter(Boolean) as string[]);
+  const leadClickNew = [...leadClickers].filter((v) => newVisitors.has(v)).length;
+  const callbackNew = ld.filter((r) => r.n === "new").length;
+  const callbackRet = ld.filter((r) => r.n === "ret").length;
+  const leadsTotal = telWa.length + ld.length;
+  const leadsDistinct = leadClickers.size + ld.length;
+  const leadNew = leadClickNew + callbackNew;
+  const leadRet = leadClickers.size - leadClickNew + callbackRet;
+  const conversion = visitors.size === 0 ? 0 : Math.round((leadsDistinct / visitors.size) * 1000) / 1000;
   const conversionNew = newVisitors.size === 0 ? 0 : Math.round((leadNew / newVisitors.size) * 1000) / 1000;
   const conversionRet = returning.size === 0 ? 0 : Math.round((leadRet / returning.size) * 1000) / 1000;
 
   const byVisitorDays = new Map<string, Set<string>>();
-  for (const r of inPeriod) {
-    if (!r.v_hash || !CLICKS.has(r.event)) continue;
+  for (const r of ck) {
+    if (!r.v_hash) continue;
     if (!byVisitorDays.has(r.v_hash)) byVisitorDays.set(r.v_hash, new Set());
     byVisitorDays.get(r.v_hash)!.add(r.day);
   }
   const multiDayClickers = [...byVisitorDays.values()].filter((d) => d.size >= 2).length;
 
-  const pageVisitors = new Map<string, Set<string>>();
-  const pageLeads = new Map<string, number>();
-  for (const r of inPeriod) {
-    if (r.event === "pageview" && r.v_hash) {
-      if (!pageVisitors.has(r.path)) pageVisitors.set(r.path, new Set());
-      pageVisitors.get(r.path)!.add(r.v_hash);
-    }
-    if (LEADS.has(r.event)) {
-      pageLeads.set(r.path, (pageLeads.get(r.path) || 0) + 1);
-    }
+  const pageAgg = new Map<string, { views: number; new: number; returning: number }>();
+  for (const r of pv) {
+    const cur = pageAgg.get(r.path) || { views: 0, new: 0, returning: 0 };
+    cur.views += 1;
+    if (r.n === "new") cur.new += 1;
+    else cur.returning += 1;
+    pageAgg.set(r.path, cur);
   }
-  const topPagesByVisitors = [...pageVisitors.entries()]
-    .map(([path, set]) => ({ path, visitors: set.size }))
-    .sort((a, b) => b.visitors - a.visitors)
-    .slice(0, 3);
-  const topPagesByLeads = [...pageLeads.entries()]
-    .map(([path, leads]) => ({ path, leads }))
-    .sort((a, b) => b.leads - a.leads)
+  const topPagesByViews = [...pageAgg.entries()]
+    .map(([path, a]) => ({ path, views: a.views, new: a.new, returning: a.returning }))
+    .sort((a, b) => b.views - a.views)
     .slice(0, 3);
 
   return {
+    retentionDays,
+    limitations:
+      "Safari and some in-app browsers may clear or block localStorage, which can over-count first-day visits as new after storage is wiped.",
+    pageViews: pv.length,
     uniqueVisitors: visitors.size,
-    visits,
+    visits: visitStarts,
     newVisitors: newVisitors.size,
     returningVisitors: returning.size,
-    clicks,
+    clicks: clickStats,
     leads: {
-      total: leadRows.length,
-      distinct: leadVisitors.size,
+      total: leadsTotal,
+      distinct: leadsDistinct,
       new: leadNew,
       returning: leadRet,
       conversionRate: conversion,
       conversionRateNew: conversionNew,
       conversionRateReturning: conversionRet,
+      callbackFormSuccess: ld.length,
     },
     multiDayClickers,
-    topPagesByVisitors,
-    topPagesByLeads,
+    topPagesByViews,
   };
 }
 

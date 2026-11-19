@@ -4,7 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { classifyLink } from "../public/link-classify.js";
-import { track, pagePath } from "../public/analytics.js";
+import { track } from "../public/analytics.js";
 import {
   collectorEnabled,
   buildContentSecurityPolicy,
@@ -66,7 +66,7 @@ assert.deepEqual(fakeWindow.__mamberEvents, [
   { event: "tel", path: "/contact/" },
   { event: "callback_submit", path: "/contact/" },
 ]);
-assert.equal(pagePath(), "/contact/");
+
 
 const emptyHtml = await readFile(path.join(root, "dist/index.html"), "utf8").catch(() => "");
 if (emptyHtml) {

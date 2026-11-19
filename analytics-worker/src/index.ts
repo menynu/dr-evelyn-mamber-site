@@ -1,6 +1,8 @@
 import {
+  CLICK_EVENTS,
   computeWeekly,
   dayKey,
+  DEFAULT_RETENTION_DAYS,
   isBot,
   minuteKey,
   originAllowed,
@@ -10,7 +12,10 @@ import {
   visitorHashForEvent,
   weekBounds,
   weekOverWeekChange,
-  type EventRow,
+  type ClickRow,
+  type LeadRow,
+  type PageViewRow,
+  type VisitRow,
 } from "./logic";
 import { dashboardHtml } from "./dashboard";
 
@@ -19,6 +24,7 @@ export interface Env {
   ALLOWED_ORIGINS: string;
   MAX_EVENTS_PER_DAY?: string;
   WRITE_SPIKE_LIMIT?: string;
+  RETENTION_DAYS?: string;
   V_PEPPER: string;
   IP_SALT_SECRET: string;
   DASH_USER: string;
@@ -32,6 +38,11 @@ const cors = (origin: string | null) => ({
   "Access-Control-Allow-Headers": "content-type",
   "Access-Control-Max-Age": "86400",
 });
+
+function retentionDays(env: Env): number {
+  const n = Number(env.RETENTION_DAYS || DEFAULT_RETENTION_DAYS);
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_RETENTION_DAYS;
+}
 
 async function ipDailyHash(request: Request, secret: string, day: string): Promise<string> {
   const ip =
@@ -52,14 +63,11 @@ async function handleEvent(request: Request, env: Env): Promise<Response> {
   if (request.method !== "POST") {
     return new Response("method", { status: 405, headers: cors(origin) });
   }
-
-  const ua = request.headers.get("user-agent");
-  if (isBot(ua)) {
+  if (isBot(request.headers.get("user-agent"))) {
     return new Response(null, { status: 204, headers: cors(origin) });
   }
 
-  const raw = await request.text();
-  const parsed = parseBody(raw);
+  const parsed = parseBody(await request.text());
   if (!parsed.ok) {
     return new Response(parsed.error, { status: 400, headers: cors(origin) });
   }
@@ -73,8 +81,7 @@ async function handleEvent(request: Request, env: Env): Promise<Response> {
   const spike = await env.DB.prepare("SELECT count FROM write_spikes WHERE minute_key = ?")
     .bind(mk)
     .first<{ count: number }>();
-  const spikeCount = (spike?.count || 0) + 1;
-  if (spikeCount > spikeLimit) {
+  if ((spike?.count || 0) + 1 > spikeLimit) {
     return new Response("busy", { status: 503, headers: cors(origin) });
   }
   await env.DB.prepare(
@@ -83,14 +90,12 @@ async function handleEvent(request: Request, env: Env): Promise<Response> {
     .bind(mk)
     .run();
 
-  // Cap ~60/day: identified visitors by hashed id; no-id by ipHash in rate_limits only.
   const maxDay = Number(env.MAX_EVENTS_PER_DAY || "60");
   const rateKey = ev.v ? await sha256Hex(`v|${env.V_PEPPER}|${ev.v}|${day}`) : `ip|${ipHash}`;
   const rate = await env.DB.prepare("SELECT count FROM rate_limits WHERE key = ? AND day = ?")
     .bind(rateKey, day)
     .first<{ count: number }>();
-  const rateCount = (rate?.count || 0) + 1;
-  if (rateCount > maxDay) {
+  if ((rate?.count || 0) + 1 > maxDay) {
     return new Response("rate", { status: 429, headers: cors(origin) });
   }
   await env.DB.prepare(
@@ -102,35 +107,45 @@ async function handleEvent(request: Request, env: Env): Promise<Response> {
     .bind(rateKey, day)
     .run();
 
-  // events.v_hash is never IP-derived: identified → sha256(pepper|v); no-id → NULL.
   const vHash = await visitorHashForEvent(ev.v, env.V_PEPPER || "dev-pepper");
 
-  // Click↔pageview window only for identified visitors. No-id clicks skip this
-  // (nothing IP-linked is stored in events; abuse is limited via rate_limits only).
-  if (vHash && ev.e !== "pageview" && ev.e !== "callback_form_success") {
-    const recent = await env.DB.prepare(
-      "SELECT 1 as ok FROM events WHERE v_hash = ? AND event = 'pageview' AND ts >= ? LIMIT 1",
-    )
-      .bind(vHash, now - 30 * 60 * 1000)
-      .first();
-    if (!recent) {
-      return new Response("no_pageview", { status: 409, headers: cors(origin) });
+  if (ev.e === "pageview") {
+    await env.DB.prepare("INSERT INTO page_views (ts, day, path, n) VALUES (?, ?, ?, ?)")
+      .bind(now, day, ev.p!, ev.n!)
+      .run();
+    if (vHash) {
+      await env.DB.prepare("INSERT INTO visits (ts, day, v_hash, f, l, s) VALUES (?, ?, ?, ?, ?, ?)")
+        .bind(now, day, vHash, ev.f || null, ev.l || null, ev.s || null)
+        .run();
     }
+    return new Response(null, { status: 204, headers: cors(origin) });
   }
-  await env.DB.prepare(
-    "INSERT INTO events (ts, day, event, path, v_hash, f, l, s, n) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-  )
-    .bind(now, day, ev.e, ev.p, vHash, ev.f || null, ev.l || null, ev.s || null, ev.n || null)
-    .run();
 
-  return new Response(null, { status: 204, headers: cors(origin) });
+  if (ev.e === "callback_form_success") {
+    await env.DB.prepare("INSERT INTO leads (ts, day, n) VALUES (?, ?, ?)").bind(now, day, ev.n!).run();
+    return new Response(null, { status: 204, headers: cors(origin) });
+  }
+
+  if (CLICK_EVENTS.has(ev.e)) {
+    if (vHash) {
+      const recent = await env.DB.prepare("SELECT 1 as ok FROM visits WHERE v_hash = ? AND ts >= ? LIMIT 1")
+        .bind(vHash, now - 30 * 60 * 1000)
+        .first();
+      if (!recent) {
+        return new Response("no_pageview", { status: 409, headers: cors(origin) });
+      }
+    }
+    await env.DB.prepare("INSERT INTO clicks (ts, day, event, v_hash, f, s) VALUES (?, ?, ?, ?, ?, ?)")
+      .bind(now, day, ev.e, vHash, ev.f || null, ev.s || null)
+      .run();
+    return new Response(null, { status: 204, headers: cors(origin) });
+  }
+
+  return new Response("bad_event", { status: 400, headers: cors(origin) });
 }
 
 function unauthorized(): Response {
-  return new Response("auth", {
-    status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="analytics"' },
-  });
+  return new Response("auth", { status: 401, headers: { "WWW-Authenticate": 'Basic realm="analytics"' } });
 }
 
 function checkBasic(request: Request, env: Env): boolean {
@@ -139,63 +154,81 @@ function checkBasic(request: Request, env: Env): boolean {
   try {
     const decoded = atob(h.slice(6));
     const i = decoded.indexOf(":");
-    const user = decoded.slice(0, i);
-    const pass = decoded.slice(i + 1);
-    return user === env.DASH_USER && pass === env.DASH_PASS;
+    return decoded.slice(0, i) === env.DASH_USER && decoded.slice(i + 1) === env.DASH_PASS;
   } catch {
     return false;
   }
 }
 
-async function loadRows(env: Env, start: number, end: number): Promise<EventRow[]> {
-  const res = await env.DB.prepare(
-    "SELECT ts, day, event, path, v_hash, f, l, s, n FROM events WHERE ts >= ? AND ts < ?",
-  )
-    .bind(start, end)
-    .all<EventRow>();
-  return res.results || [];
+async function loadTables(env: Env, start: number, end: number) {
+  const [pv, vs, ck, ld] = await Promise.all([
+    env.DB.prepare("SELECT ts, day, path, n FROM page_views WHERE ts >= ? AND ts < ?").bind(start, end).all<PageViewRow>(),
+    env.DB.prepare("SELECT ts, day, v_hash, f, l, s FROM visits WHERE ts >= ? AND ts < ?").bind(start, end).all<VisitRow>(),
+    env.DB.prepare("SELECT ts, day, event, v_hash, f, s FROM clicks WHERE ts >= ? AND ts < ?").bind(start, end).all<ClickRow>(),
+    env.DB.prepare("SELECT ts, day, n FROM leads WHERE ts >= ? AND ts < ?").bind(start, end).all<LeadRow>(),
+  ]);
+  return {
+    pageViews: pv.results || [],
+    visits: vs.results || [],
+    clicks: ck.results || [],
+    leads: ld.results || [],
+  };
+}
+
+async function weeklyBundle(env: Env) {
+  const days = retentionDays(env);
+  const { start, end, prevStart, prevEnd } = weekBounds();
+  const cur = await loadTables(env, start, end);
+  const prev = await loadTables(env, prevStart, prevEnd);
+  return {
+    start,
+    end,
+    retentionDays: days,
+    current: computeWeekly(cur.pageViews, cur.visits, cur.clicks, cur.leads, start, end, days),
+    previous: computeWeekly(prev.pageViews, prev.visits, prev.clicks, prev.leads, prevStart, prevEnd, days),
+  };
 }
 
 async function handleWeekly(request: Request, env: Env): Promise<Response> {
-  const url = new URL(request.url);
-  if (url.searchParams.get("token") !== env.WEEKLY_TOKEN) {
+  if (new URL(request.url).searchParams.get("token") !== env.WEEKLY_TOKEN) {
     return new Response("forbidden", { status: 403 });
   }
-  const { start, end, prevStart, prevEnd } = weekBounds();
-  const rows = await loadRows(env, prevStart, end);
-  const current = computeWeekly(rows, start, end);
-  const previous = computeWeekly(rows, prevStart, prevEnd);
-  const body = {
-    period: { start, end },
-    current,
-    previous,
-    wow: {
-      uniqueVisitors: weekOverWeekChange(current.uniqueVisitors, previous.uniqueVisitors),
-      visits: weekOverWeekChange(current.visits, previous.visits),
-      leads: weekOverWeekChange(current.leads.distinct, previous.leads.distinct),
-    },
-  };
-  return new Response(JSON.stringify(body), {
-    headers: { "content-type": "application/json; charset=utf-8" },
-  });
+  const { start, end, current, previous, retentionDays: days } = await weeklyBundle(env);
+  return new Response(
+    JSON.stringify({
+      retentionDays: days,
+      note: `Retention window: ${days} days. ${current.limitations}`,
+      period: { start, end },
+      current,
+      previous,
+      wow: {
+        uniqueVisitors: weekOverWeekChange(current.uniqueVisitors, previous.uniqueVisitors),
+        visits: weekOverWeekChange(current.visits, previous.visits),
+        leads: weekOverWeekChange(current.leads.distinct, previous.leads.distinct),
+        pageViews: weekOverWeekChange(current.pageViews, previous.pageViews),
+      },
+    }),
+    { headers: { "content-type": "application/json; charset=utf-8" } },
+  );
 }
 
 async function handleDashboard(request: Request, env: Env): Promise<Response> {
   if (!checkBasic(request, env)) return unauthorized();
-  const { start, end, prevStart, prevEnd } = weekBounds();
-  const rows = await loadRows(env, prevStart, end);
-  const current = computeWeekly(rows, start, end);
-  const previous = computeWeekly(rows, prevStart, prevEnd);
-  const html = dashboardHtml(current, previous);
-  return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
+  const { current, previous, retentionDays: days } = await weeklyBundle(env);
+  return new Response(dashboardHtml(current, previous, days), {
+    headers: { "content-type": "text/html; charset=utf-8" },
+  });
 }
 
 async function purgeOld(env: Env): Promise<void> {
-  const cutoff = Date.now() - 13 * 30 * 24 * 60 * 60 * 1000;
-  await env.DB.prepare("DELETE FROM events WHERE ts < ?").bind(cutoff).run();
-  // N = RATE_LIMIT_RETENTION_DAYS (2): hashed-IP keys must not linger.
-  const oldDay = dayKey(Date.now() - RATE_LIMIT_RETENTION_DAYS * 24 * 60 * 60 * 1000);
-  await env.DB.prepare("DELETE FROM rate_limits WHERE day < ?").bind(oldDay).run();
+  const cutoff = Date.now() - retentionDays(env) * 24 * 60 * 60 * 1000;
+  await env.DB.prepare("DELETE FROM page_views WHERE ts < ?").bind(cutoff).run();
+  await env.DB.prepare("DELETE FROM visits WHERE ts < ?").bind(cutoff).run();
+  await env.DB.prepare("DELETE FROM clicks WHERE ts < ?").bind(cutoff).run();
+  await env.DB.prepare("DELETE FROM leads WHERE ts < ?").bind(cutoff).run();
+  await env.DB.prepare("DELETE FROM rate_limits WHERE day < ?")
+    .bind(dayKey(Date.now() - RATE_LIMIT_RETENTION_DAYS * 24 * 60 * 60 * 1000))
+    .run();
   await env.DB.prepare("DELETE FROM write_spikes WHERE minute_key < ?")
     .bind(minuteKey(Date.now() - 2 * 60 * 60 * 1000))
     .run();

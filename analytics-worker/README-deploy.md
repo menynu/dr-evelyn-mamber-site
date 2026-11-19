@@ -1,4 +1,4 @@
-# פריסת מונה המדידה (Cloudflare Worker + D1)
+# פריסת מונה המדידה (Cloudflare Worker + D1) — אפשרות C
 
 מסמך זה לפריסה ידנית אחרי אישור מני, סקירת ציות ובדיקת עו״ד. **אין להריץ `wrangler deploy` מהסוכן.**
 
@@ -18,10 +18,11 @@
    npx wrangler d1 execute mamber-analytics --file=./schema.sql
    ```
 
-3. הגדרת משתנים ב־`wrangler.toml`:
-   - `ALLOWED_ORIGINS` — למשל `https://menynu.github.io` (ואם צריך גם כתובת תצוגה מקדימה).
-   - `MAX_EVENTS_PER_DAY` (ברירת מחדל 60).
-   - `WRITE_SPIKE_LIMIT` (ברירת מחדל 400).
+3. משתנים ב־`wrangler.toml`:
+   - `ALLOWED_ORIGINS`
+   - `MAX_EVENTS_PER_DAY` (ברירת מחדל 60)
+   - `WRITE_SPIKE_LIMIT` (ברירת מחדל 400)
+   - `RETENTION_DAYS` = **90**
 
 4. סודות:
    ```bash
@@ -32,27 +33,15 @@
    npx wrangler secret put WEEKLY_TOKEN
    ```
 
-5. פריסה (רק אחרי אישור מפורש):
-   ```bash
-   npx wrangler deploy
-   ```
-   לשמור את כתובת ה־Worker (בלי סלאש בסוף).
+5. פריסה (רק אחרי אישור מפורש): `npx wrangler deploy`
 
-6. באתר: ב־`site.analytics.mjs` להגדיר:
-   ```js
-   collectorUrl: "https://YOUR-WORKER.workers.dev"
-   ```
-   ולבנות מחדש (`npm run build`). ה־CSP יקבל את ה־origin אוטומטית.
+6. באתר: `collectorUrl` ב־`site.analytics.mjs` (או `COLLECTOR_URL`) ואז `npm run build`.
 
-7. בדיקות אחרי פריסה:
-   - `GET /dashboard` עם Basic Auth.
-   - `GET /api/weekly?token=WEEKLY_TOKEN`.
-   - בדפדפן: Network → POST `/e` רק כש־`collectorUrl` מלא.
-
-## שמירה על פרטיות
-- אין עוגיות, אין פיקסלי פרסום, אין שמירת IP גולמי.
-- בטבלת `events` אין ערך הנגזר מ־IP: באירועים ללא מזהה (`v` חסר) נשמר `v_hash = NULL`.
-- גיבוב IP יומי משמש **רק** בטבלת `rate_limits` להגבלת שימוש לרעה (כולל אירועי no-id).
-- מחיקת שורות `rate_limits` ישנות: **N = 2 ימים** (cron יומי).
-- GPC / DNT / `mmb_optout` מונעים יצירת מזהה בדפדפן.
-- מחיקת ספירות ב־`events` אחרי ~13 חודשים (cron יומי).
+## סכמה (אפשרות C)
+- `page_views(ts, day, path, n)` — ספירות מצטברות לפי עמוד, **בלי** `v_hash`
+- `visits(ts, day, v_hash, f, l, s)` — ביקור לפי מזהה מגובב, **בלי** path
+- `clicks(ts, day, event, v_hash, f, s)` — לחיצה, **בלי** path (`v_hash` יכול להיות NULL)
+- `leads(ts, day, n)` — callback_form_success בלבד
+- אף שורה לא מחזיקה גם path וגם `v_hash`
+- גיבוב IP רק ב־`rate_limits`, נמחק אחרי **N = 2 ימים**
+- מחיקת `page_views` / `visits` / `clicks` / `leads` אחרי **90 ימים**
