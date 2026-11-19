@@ -585,6 +585,17 @@ textarea { min-height: 6rem; resize: vertical; }
   margin: 0;
 }
 
+.field-error {
+  display: block;
+  color: var(--clay);
+  font-size: 0.92rem;
+  margin-top: 0.35rem;
+}
+
+.field-error[hidden] {
+  display: none;
+}
+
 .map-panel {
   min-height: 12rem;
   border: 1px dashed var(--line);
