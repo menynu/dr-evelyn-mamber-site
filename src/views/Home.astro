@@ -47,6 +47,9 @@ const whyIcons = ["users", "leaf", "shield"];
         <p class="hero-links">
           <span>{addressLine(locale)}</span>
           <a href="#directions">{t.home.directionsLink}</a>
+          <a href={`${localePath(locale, "/contact/")}#${locale === "he" ? "callback-form" : "booking-form"}`}>
+            {t.home.callbackLink}
+          </a>
         </p>
         <UrgentNotice locale={locale} />
         </div>
