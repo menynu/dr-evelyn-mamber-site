@@ -14,6 +14,7 @@
   --gold-deep: #6b4e16;
   --urgent-bg: #fbf4f1;
   --urgent-line: #e7c8bf;
+  --field-border: #8b7a68;
   --shadow: 0 16px 40px rgba(26, 38, 36, 0.08);
   --radius: 1.25rem;
   --font: "Rubik", "Rubik Fallback", "Arial Hebrew", "Noto Sans Hebrew", Arial, "Liberation Sans", sans-serif;
@@ -540,7 +541,7 @@ input, select, textarea {
   font: inherit;
   color: inherit;
   background: #fff;
-  border: 1px solid #cdbba8;
+  border: 1px solid var(--field-border);
   border-radius: 0.8rem;
   min-height: 3rem;
   padding: 0.6rem 0.75rem;
