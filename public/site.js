@@ -260,7 +260,6 @@ function setupBot() {
       const id = button.dataset.replyId || "";
       addMessage(log, "user", button.textContent?.trim() || "", "", "");
       show(answerById(id, pack));
-      input.focus();
     });
   });
 
