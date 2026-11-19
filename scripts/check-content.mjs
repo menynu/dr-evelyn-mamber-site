@@ -105,9 +105,10 @@ if (!analytics.gscVerification && (he.includes("google-site-verification") || en
   failures.push("verification meta is present while site.analytics.mjs gscVerification is empty");
 }
 if (he.includes("cloudflareinsights") || en.includes("cloudflareinsights")) {
-  if (!analytics.cfBeaconToken) {
-    failures.push("Cloudflare beacon appears in HTML while site.analytics.mjs cfBeaconToken is empty");
-  }
+  failures.push("Cloudflare Web Analytics beacon must not be rendered");
+}
+if (!analytics.collectorUrl && (he.includes("mmb-cfg") || en.includes("mmb-cfg"))) {
+  failures.push("mmb-cfg appears in HTML while site.analytics.mjs collectorUrl is empty");
 }
 const robots = await readFile(path.join(root, "dist/robots.txt"), "utf8");
 if (!/^Sitemap:\s*https:\/\/\S+sitemap-index\.xml\s*$/m.test(robots)) {
@@ -173,8 +174,14 @@ if (!thanks.includes("תודה, קיבלנו את הפנייה ונחזור אל
 const privacy = await readFile(path.join(root, "dist/privacy/index.html"), "utf8");
 const privacyEn = await readFile(path.join(root, "dist/en/privacy/index.html"), "utf8");
 if (!privacy.includes("FormSubmit")) failures.push("Hebrew privacy page does not describe the callback form");
-if (!privacy.includes("Cloudflare Web Analytics") || !privacyEn.includes("Cloudflare Web Analytics")) {
-  failures.push("privacy pages are missing the cookieless analytics section");
+if (!privacy.includes("Cloudflare Workers") || !privacyEn.includes("Cloudflare Workers")) {
+  failures.push("privacy pages are missing the self-hosted measurement section");
+}
+if (!privacy.includes('data-mmb-optout') || !privacyEn.includes("data-mmb-optout")) {
+  failures.push("privacy pages are missing the measurement opt-out toggle");
+}
+if (!privacy.includes("13") || !privacyEn.includes("13 months")) {
+  failures.push("privacy pages are missing the 13-month retention note");
 }
 if (!he.includes("כתיבת ביקורת בגוגל")) failures.push("Hebrew home is missing the review call to action");
 if (!en.includes("Write a Google review")) failures.push("English home is missing the review call to action");

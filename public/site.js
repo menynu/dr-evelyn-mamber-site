@@ -1,4 +1,5 @@
-import { setupAnalytics, track } from "./analytics.js";
+import { isAnalyticsOptOut, setAnalyticsOptOut, setupAnalytics, track } from "./analytics.js";
+import { classifyLink } from "./link-classify.js";
 import { answerById, answerQuestion } from "./bot-core.js";
 import {
   isDesktopNavigation,
@@ -464,6 +465,36 @@ function setupShare() {
 }
 
 setupAnalytics();
+
+document.addEventListener(
+  "click",
+  (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const anchor = target.closest("a[href]");
+    if (!(anchor instanceof HTMLAnchorElement)) return;
+    const kind = classifyLink(anchor.href);
+    if (kind) track(kind);
+  },
+  true,
+);
+
+{
+  const btn = document.querySelector("[data-mmb-optout]");
+  if (btn instanceof HTMLButtonElement) {
+    const sync = () => {
+      const on = isAnalyticsOptOut();
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.textContent = on ? btn.dataset.labelOff || "" : btn.dataset.labelOn || "";
+    };
+    sync();
+    btn.addEventListener("click", () => {
+      setAnalyticsOptOut(!isAnalyticsOptOut());
+      sync();
+    });
+  }
+}
+
 setupNav();
 setupMap();
 setupForm();

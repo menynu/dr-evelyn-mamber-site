@@ -342,6 +342,8 @@ export const copyEn = {
     kicker: "Privacy",
     title: "Privacy policy",
     lede: "The site gives information and opens a way to book. It is not a store of medical records.",
+    optOutLabel: "Turn off measurement on this site",
+    optInLabel: "Turn on measurement on this site",
     sections: [
       {
         heading: "Who is responsible",
@@ -356,8 +358,9 @@ export const copyEn = {
       {
         heading: "How the site measures use",
         paragraphs: [
-          "When measurement is switched on, the site uses Cloudflare Web Analytics to count page views in aggregate only: no cookies, no persistent user identifier, and no advertising pixels. To produce these counts, Cloudflare processes technical data such as IP address and browser type, and does not use it to identify visitors.",
+          "When measurement is switched on, the site runs a self-hosted counter on Cloudflare Workers. It counts page views and specific click types (call, WhatsApp, directions, and review) and keeps a random identifier in the browser’s local storage so new and returning visitors can be told apart. There are no cookies, no advertising pixels, and no collection of form contents, phone numbers, or link addresses. An IP address is used only as a daily hash for abuse limiting and is not stored. Data is kept for up to 13 months. The site respects Global Privacy Control and Do Not Track, and you can turn measurement off or on with the button below.",
         ],
+        optOut: true,
       },
       {
         heading: "Sending directions from a computer",
