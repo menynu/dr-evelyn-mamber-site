@@ -324,7 +324,6 @@ export const copyEn = {
         list: [
           "The Google map is a third-party service and loads only after a click. It may be less accessible than this site. The address and a directions link work without the map.",
           "WhatsApp, Waze, and Google Maps are external apps. You can always book by phone, and the address is written on the site without them.",
-          "The borders of form fields do not yet have enough contrast, and this is being fixed.",
           "Physical access details for the clinic building will be published here once they are confirmed. Until then, ask by phone.",
         ],
       },
