@@ -3,9 +3,11 @@ import {
   DEFAULT_RETENTION_DAYS,
   RATE_LIMIT_RETENTION_DAYS,
   computeWeekly,
+  dayRange,
   isBot,
   originAllowed,
   parseBody,
+  retentionCutoffDay,
   rowHasPathAndVHash,
   shouldRotateId,
   visitorHashForEvent,
@@ -47,7 +49,7 @@ describe("parseBody", () => {
 describe("option C invariants", () => {
   it("never mixes path and v_hash on logical rows", () => {
     expect(rowHasPathAndVHash({ path: "/", v_hash: "abc" })).toBe(true);
-    expect(rowHasPathAndVHash({ path: "/", n: "new" })).toBe(false);
+    expect(rowHasPathAndVHash({ path: "/", n: "new", count: 3 })).toBe(false);
     expect(rowHasPathAndVHash({ v_hash: "abc", f: "2026-01-01" })).toBe(false);
   });
 
@@ -56,39 +58,42 @@ describe("option C invariants", () => {
     expect(await visitorHashForEvent("a".repeat(32), "p")).toHaveLength(64);
   });
 
-  it("rotates id after 90 days and keeps retention constants", () => {
+  it("rotates id after 90 days and purges by day", () => {
     expect(DEFAULT_RETENTION_DAYS).toBe(90);
     expect(RATE_LIMIT_RETENTION_DAYS).toBe(2);
     expect(shouldRotateId("2026-01-01", "2026-01-01", 90)).toBe(false);
     expect(shouldRotateId("2026-01-01", "2026-04-01", 90)).toBe(true);
     expect(shouldRotateId(undefined, "2026-04-01", 90)).toBe(true);
     const now = Date.UTC(2026, 10, 19);
-    const cutoff = now - DEFAULT_RETENTION_DAYS * 864e5;
-    expect(new Date(cutoff).toISOString().slice(0, 10)).toBe("2026-08-21");
+    expect(retentionCutoffDay(DEFAULT_RETENTION_DAYS, now)).toBe("2026-08-21");
+    const { startDay, endDay } = dayRange(now - 7 * 864e5, now);
+    expect(startDay <= endDay).toBe(true);
   });
 
-  it("computes weekly from split tables", () => {
+  it("computes weekly from aggregate page_views and day-only visits/clicks", () => {
     const now = Date.now();
+    const day = new Date(now).toISOString().slice(0, 10);
     const pageViews: PageViewRow[] = [
-      { ts: now - 1000, day: "2026-11-19", path: "/", n: "new" },
-      { ts: now - 900, day: "2026-11-19", path: "/contact/", n: "ret" },
+      { day, path: "/", n: "new", count: 2 },
+      { day, path: "/contact/", n: "ret", count: 1 },
     ];
     const visits: VisitRow[] = [
-      { ts: now - 1000, day: "2026-11-19", v_hash: "v1", f: "2026-11-19", l: "2026-11-19", s: 1 },
-      { ts: now - 900, day: "2026-11-19", v_hash: "v2", f: "2026-10-01", l: "2026-11-19", s: 1 },
+      { day, v_hash: "v1", f: day, l: day, s: 1 },
+      { day, v_hash: "v2", f: "2026-10-01", l: day, s: 1 },
     ];
     const clicks: ClickRow[] = [
-      { ts: now - 800, day: "2026-11-19", event: "tel", v_hash: "v1", f: "2026-11-19", s: null },
-      { ts: now - 700, day: "2026-11-19", event: "whatsapp", v_hash: "v2", f: "2026-10-01", s: null },
-      { ts: now - 600, day: "2026-11-19", event: "google_review", v_hash: "v2", f: "2026-10-01", s: null },
+      { day, event: "tel", v_hash: "v1", f: day, s: null },
+      { day, event: "whatsapp", v_hash: "v2", f: "2026-10-01", s: null },
+      { day, event: "google_review", v_hash: "v2", f: "2026-10-01", s: null },
     ];
-    const leads: LeadRow[] = [{ ts: now - 500, day: "2026-11-19", n: "new" }];
+    const leads: LeadRow[] = [{ ts: now - 500, day, n: "new" }];
     const stats = computeWeekly(pageViews, visits, clicks, leads, now - 7 * 864e5, now + 1, 90);
+    expect(stats.pageViews).toBe(3);
     expect(stats.uniqueVisitors).toBe(2);
     expect(stats.visits).toBe(2);
     expect(stats.clicks.tel.distinct).toBe(1);
     expect(stats.clicks.google_review.total).toBe(1);
-    expect(stats.topPagesByViews[0].path).toBe("/");
+    expect(stats.topPagesByViews[0]).toEqual({ path: "/", views: 2, new: 2, returning: 0 });
     expect(stats.retentionDays).toBe(90);
     expect(weekOverWeekChange(10, 5)).toBe(100);
   });

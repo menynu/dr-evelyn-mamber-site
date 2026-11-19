@@ -132,18 +132,22 @@ try {
     assert.equal(bodies(beacons).filter((b) => b.e === "callback_form_success").length, 1);
   });
 
-  // Id rotation after 90 days (c old)
+  // Id rotation after 90 days resets id, c, f, and l (no first-visit linkage)
   await withPage(
     browser,
     "/",
     async (page, beacons) => {
       await page.waitForTimeout(200);
+      const today = new Date().toISOString().slice(0, 10);
       const mmb = JSON.parse(await page.evaluate(() => localStorage.getItem("mmb")));
       const pv = bodies(beacons).find((b) => b.e === "pageview");
       assert.notEqual(mmb.id, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-      assert.equal(mmb.f, "2026-01-01");
+      assert.equal(mmb.f, today);
+      assert.equal(mmb.l, today);
+      assert.equal(mmb.c, today);
       assert.equal(pv.v, mmb.id);
-      assert.equal(mmb.c, new Date().toISOString().slice(0, 10));
+      assert.equal(pv.f, today);
+      assert.equal(pv.n, "new");
     },
     async (ctx) => {
       await ctx.addInitScript(() => {

@@ -2,12 +2,14 @@ import {
   CLICK_EVENTS,
   computeWeekly,
   dayKey,
+  dayRange,
   DEFAULT_RETENTION_DAYS,
   isBot,
   minuteKey,
   originAllowed,
   parseBody,
   RATE_LIMIT_RETENTION_DAYS,
+  retentionCutoffDay,
   sha256Hex,
   visitorHashForEvent,
   weekBounds,
@@ -42,6 +44,10 @@ const cors = (origin: string | null) => ({
 function retentionDays(env: Env): number {
   const n = Number(env.RETENTION_DAYS || DEFAULT_RETENTION_DAYS);
   return Number.isFinite(n) && n > 0 ? n : DEFAULT_RETENTION_DAYS;
+}
+
+function rowId(): string {
+  return crypto.randomUUID();
 }
 
 async function ipDailyHash(request: Request, secret: string, day: string): Promise<string> {
@@ -110,12 +116,15 @@ async function handleEvent(request: Request, env: Env): Promise<Response> {
   const vHash = await visitorHashForEvent(ev.v, env.V_PEPPER || "dev-pepper");
 
   if (ev.e === "pageview") {
-    await env.DB.prepare("INSERT INTO page_views (ts, day, path, n) VALUES (?, ?, ?, ?)")
-      .bind(now, day, ev.p!, ev.n!)
+    await env.DB.prepare(
+      `INSERT INTO page_views (day, path, n, count) VALUES (?, ?, ?, 1)
+       ON CONFLICT(day, path, n) DO UPDATE SET count = count + 1`,
+    )
+      .bind(day, ev.p!, ev.n!)
       .run();
     if (vHash) {
-      await env.DB.prepare("INSERT INTO visits (ts, day, v_hash, f, l, s) VALUES (?, ?, ?, ?, ?, ?)")
-        .bind(now, day, vHash, ev.f || null, ev.l || null, ev.s || null)
+      await env.DB.prepare("INSERT INTO visits (id, day, v_hash, f, l, s) VALUES (?, ?, ?, ?, ?, ?)")
+        .bind(rowId(), day, vHash, ev.f || null, ev.l || null, ev.s || null)
         .run();
     }
     return new Response(null, { status: 204, headers: cors(origin) });
@@ -128,15 +137,16 @@ async function handleEvent(request: Request, env: Env): Promise<Response> {
 
   if (CLICK_EVENTS.has(ev.e)) {
     if (vHash) {
-      const recent = await env.DB.prepare("SELECT 1 as ok FROM visits WHERE v_hash = ? AND ts >= ? LIMIT 1")
-        .bind(vHash, now - 30 * 60 * 1000)
+      // Day-level gate (no ts on visits): require a same-day visit for this hash.
+      const recent = await env.DB.prepare("SELECT 1 as ok FROM visits WHERE v_hash = ? AND day = ? LIMIT 1")
+        .bind(vHash, day)
         .first();
       if (!recent) {
         return new Response("no_pageview", { status: 409, headers: cors(origin) });
       }
     }
-    await env.DB.prepare("INSERT INTO clicks (ts, day, event, v_hash, f, s) VALUES (?, ?, ?, ?, ?, ?)")
-      .bind(now, day, ev.e, vHash, ev.f || null, ev.s || null)
+    await env.DB.prepare("INSERT INTO clicks (id, day, event, v_hash, f, s) VALUES (?, ?, ?, ?, ?, ?)")
+      .bind(rowId(), day, ev.e, vHash, ev.f || null, ev.s || null)
       .run();
     return new Response(null, { status: 204, headers: cors(origin) });
   }
@@ -161,10 +171,17 @@ function checkBasic(request: Request, env: Env): boolean {
 }
 
 async function loadTables(env: Env, start: number, end: number) {
+  const { startDay, endDay } = dayRange(start, end);
   const [pv, vs, ck, ld] = await Promise.all([
-    env.DB.prepare("SELECT ts, day, path, n FROM page_views WHERE ts >= ? AND ts < ?").bind(start, end).all<PageViewRow>(),
-    env.DB.prepare("SELECT ts, day, v_hash, f, l, s FROM visits WHERE ts >= ? AND ts < ?").bind(start, end).all<VisitRow>(),
-    env.DB.prepare("SELECT ts, day, event, v_hash, f, s FROM clicks WHERE ts >= ? AND ts < ?").bind(start, end).all<ClickRow>(),
+    env.DB.prepare("SELECT day, path, n, count FROM page_views WHERE day >= ? AND day <= ?")
+      .bind(startDay, endDay)
+      .all<PageViewRow>(),
+    env.DB.prepare("SELECT day, v_hash, f, l, s FROM visits WHERE day >= ? AND day <= ?")
+      .bind(startDay, endDay)
+      .all<VisitRow>(),
+    env.DB.prepare("SELECT day, event, v_hash, f, s FROM clicks WHERE day >= ? AND day <= ?")
+      .bind(startDay, endDay)
+      .all<ClickRow>(),
     env.DB.prepare("SELECT ts, day, n FROM leads WHERE ts >= ? AND ts < ?").bind(start, end).all<LeadRow>(),
   ]);
   return {
@@ -221,13 +238,13 @@ async function handleDashboard(request: Request, env: Env): Promise<Response> {
 }
 
 async function purgeOld(env: Env): Promise<void> {
-  const cutoff = Date.now() - retentionDays(env) * 24 * 60 * 60 * 1000;
-  await env.DB.prepare("DELETE FROM page_views WHERE ts < ?").bind(cutoff).run();
-  await env.DB.prepare("DELETE FROM visits WHERE ts < ?").bind(cutoff).run();
-  await env.DB.prepare("DELETE FROM clicks WHERE ts < ?").bind(cutoff).run();
-  await env.DB.prepare("DELETE FROM leads WHERE ts < ?").bind(cutoff).run();
+  const cutoffDay = retentionCutoffDay(retentionDays(env));
+  await env.DB.prepare("DELETE FROM page_views WHERE day < ?").bind(cutoffDay).run();
+  await env.DB.prepare("DELETE FROM visits WHERE day < ?").bind(cutoffDay).run();
+  await env.DB.prepare("DELETE FROM clicks WHERE day < ?").bind(cutoffDay).run();
+  await env.DB.prepare("DELETE FROM leads WHERE day < ?").bind(cutoffDay).run();
   await env.DB.prepare("DELETE FROM rate_limits WHERE day < ?")
-    .bind(dayKey(Date.now() - RATE_LIMIT_RETENTION_DAYS * 24 * 60 * 60 * 1000))
+    .bind(retentionCutoffDay(RATE_LIMIT_RETENTION_DAYS))
     .run();
   await env.DB.prepare("DELETE FROM write_spikes WHERE minute_key < ?")
     .bind(minuteKey(Date.now() - 2 * 60 * 60 * 1000))

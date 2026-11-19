@@ -38,10 +38,10 @@
 6. באתר: `collectorUrl` ב־`site.analytics.mjs` (או `COLLECTOR_URL`) ואז `npm run build`.
 
 ## סכמה (אפשרות C)
-- `page_views(ts, day, path, n)` — ספירות מצטברות לפי עמוד, **בלי** `v_hash`
-- `visits(ts, day, v_hash, f, l, s)` — ביקור לפי מזהה מגובב, **בלי** path
-- `clicks(ts, day, event, v_hash, f, s)` — לחיצה, **בלי** path (`v_hash` יכול להיות NULL)
+- `page_views(day, path, n, count)` — מונה מצטבר אמיתי (`PRIMARY KEY(day,path,n)` + `ON CONFLICT … count+1`), **בלי** `ts` / `v_hash`
+- `visits(id TEXT PK, day, v_hash, f, l, s)` — ביקור לפי מזהה מגובב, **בלי** path / `ts` (מפתח אקראי, `WITHOUT ROWID`)
+- `clicks(id TEXT PK, day, event, v_hash, f, s)` — לחיצה, **בלי** path / `ts` (`v_hash` יכול להיות NULL)
 - `leads(ts, day, n)` — callback_form_success בלבד
-- אף שורה לא מחזיקה גם path וגם `v_hash`
+- אף שורה לא מחזיקה גם path וגם `v_hash`; אין קישור זמן בין צפיות למזהים
 - גיבוב IP רק ב־`rate_limits`, נמחק אחרי **N = 2 ימים**
-- מחיקת `page_views` / `visits` / `clicks` / `leads` אחרי **90 ימים**
+- מחיקת `page_views` / `visits` / `clicks` / `leads` לפי `day` אחרי **90 ימים**

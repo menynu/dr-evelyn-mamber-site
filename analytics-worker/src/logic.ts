@@ -38,6 +38,18 @@ export function minuteKey(ts = Date.now()): string {
   return new Date(ts).toISOString().slice(0, 16);
 }
 
+/** Inclusive day bounds for a half-open [periodStart, periodEnd) ms window. */
+export function dayRange(periodStart: number, periodEnd: number): { startDay: string; endDay: string } {
+  return {
+    startDay: dayKey(periodStart),
+    endDay: dayKey(Math.max(periodStart, periodEnd - 1)),
+  };
+}
+
+export function retentionCutoffDay(retentionDays: number, now = Date.now()): string {
+  return dayKey(now - retentionDays * 24 * 60 * 60 * 1000);
+}
+
 export async function sha256Hex(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
   const dig = await crypto.subtle.digest("SHA-256", data);
@@ -122,9 +134,9 @@ export function weekBounds(now = Date.now()) {
   return { start, end, prevStart: start - 7 * 24 * 60 * 60 * 1000, prevEnd: start };
 }
 
-export type PageViewRow = { ts: number; day: string; path: string; n: string };
-export type VisitRow = { ts: number; day: string; v_hash: string; f: string | null; l: string | null; s: number | null };
-export type ClickRow = { ts: number; day: string; event: string; v_hash: string | null; f: string | null; s: number | null };
+export type PageViewRow = { day: string; path: string; n: string; count: number };
+export type VisitRow = { day: string; v_hash: string; f: string | null; l: string | null; s: number | null };
+export type ClickRow = { day: string; event: string; v_hash: string | null; f: string | null; s: number | null };
 export type LeadRow = { ts: number; day: string; n: string };
 
 export function rowHasPathAndVHash(row: Record<string, unknown>): boolean {
@@ -139,6 +151,10 @@ export function shouldRotateId(created: string | undefined, today: string, reten
   return t - c >= retentionDays * 24 * 60 * 60 * 1000;
 }
 
+function inDayRange(day: string, startDay: string, endDay: string): boolean {
+  return day >= startDay && day <= endDay;
+}
+
 export function computeWeekly(
   pageViews: PageViewRow[],
   visits: VisitRow[],
@@ -148,15 +164,14 @@ export function computeWeekly(
   periodEnd: number,
   retentionDays: number,
 ) {
-  const pv = pageViews.filter((r) => r.ts >= periodStart && r.ts < periodEnd);
-  const vs = visits.filter((r) => r.ts >= periodStart && r.ts < periodEnd);
-  const ck = clicks.filter((r) => r.ts >= periodStart && r.ts < periodEnd);
+  const { startDay, endDay } = dayRange(periodStart, periodEnd);
+  const pv = pageViews.filter((r) => inDayRange(r.day, startDay, endDay));
+  const vs = visits.filter((r) => inDayRange(r.day, startDay, endDay));
+  const ck = clicks.filter((r) => inDayRange(r.day, startDay, endDay));
   const ld = leads.filter((r) => r.ts >= periodStart && r.ts < periodEnd);
 
   const visitors = new Set(vs.map((r) => r.v_hash));
   const visitStarts = vs.filter((r) => r.s === 1).length;
-  const startDay = dayKey(periodStart);
-  const endDay = dayKey(periodEnd - 1);
   const newVisitors = new Set(vs.filter((r) => r.f && r.f >= startDay && r.f <= endDay).map((r) => r.v_hash));
   const returning = new Set([...visitors].filter((v) => !newVisitors.has(v)));
 
@@ -190,11 +205,14 @@ export function computeWeekly(
   const multiDayClickers = [...byVisitorDays.values()].filter((d) => d.size >= 2).length;
 
   const pageAgg = new Map<string, { views: number; new: number; returning: number }>();
+  let pageViewTotal = 0;
   for (const r of pv) {
+    const c = Number(r.count) || 0;
+    pageViewTotal += c;
     const cur = pageAgg.get(r.path) || { views: 0, new: 0, returning: 0 };
-    cur.views += 1;
-    if (r.n === "new") cur.new += 1;
-    else cur.returning += 1;
+    cur.views += c;
+    if (r.n === "new") cur.new += c;
+    else cur.returning += c;
     pageAgg.set(r.path, cur);
   }
   const topPagesByViews = [...pageAgg.entries()]
@@ -206,7 +224,7 @@ export function computeWeekly(
     retentionDays,
     limitations:
       "Safari and some in-app browsers may clear or block localStorage, which can over-count first-day visits as new after storage is wiped.",
-    pageViews: pv.length,
+    pageViews: pageViewTotal,
     uniqueVisitors: visitors.size,
     visits: visitStarts,
     newVisitors: newVisitors.size,
