@@ -248,7 +248,7 @@ export const copyEn = {
     emailSubmit: "Send by email",
     error: "To send, fill in every field and tick the consent line.",
     template:
-      "Hello, I would like to book a visit.\nParent's name: [[parent]]\nPhone: [[phone]]\nChild's age: [[age]]\nPreferred time: [[time]]",
+      "Parent's name: [[parent]]\nPhone: [[phone]]\nChild's age: [[age]]\nPreferred time: [[time]]",
     emailSubject: "Request to book a visit",
     mapButton: "Show the map",
     mapTitle: "Map of the clinic address",
