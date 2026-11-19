@@ -190,7 +190,7 @@ const whyIcons = ["users", "leaf", "shield"];
             </summary>
             <div class="answer">
               <p>{entry.a}</p>
-              {entry.href && <p><a href={localePath(locale, entry.href)}>{t.readMore}</a></p>}
+              {entry.href && <p class="link-block"><a href={localePath(locale, entry.href)}>{t.readMore}</a></p>}
             </div>
           </details>
         ))}

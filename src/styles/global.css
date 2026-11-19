@@ -465,7 +465,7 @@ main a:not(.btn):not(.card) { text-decoration-thickness: 1px; text-underline-off
   color: var(--muted);
   font-size: 0.95rem;
 }
-.crumbs a, .footer-links a, .link-row a:not(.btn) {
+.crumbs a, .footer-links a, .link-row a:not(.btn), .link-block a {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
