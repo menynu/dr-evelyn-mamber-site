@@ -7,14 +7,14 @@ import Base from "../../../layouts/Base.astro";
 <Base
   locale="en"
   title={`Thank you | ${clinic.doctorNameEn}`}
-  description="Thank you — we received your request and will get back to you soon."
+  description="Thank you. If you sent the WhatsApp message, the clinic will get back to you."
   path="/contact/thanks/"
   noindex
 >
   <div class="container page-intro thanks">
     <h1>Thank you</h1>
-    <p class="lede">Thank you — we received your request and will get back to you soon.</p>
-    <UrgentNotice />
+    <p class="lede">Thank you. If you sent the WhatsApp message, the clinic will get back to you.</p>
+    <UrgentNotice locale="en" />
     <div class="cta-row">
       <a class="btn btn-primary" href={localePath("en", "/")}>Home</a>
       <a class="btn btn-secondary" href={localePath("en", "/contact/")}>Back to contact</a>

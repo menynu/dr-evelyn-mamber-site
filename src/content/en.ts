@@ -358,7 +358,7 @@ export const copyEn = {
       {
         heading: "How the site measures use",
         paragraphs: [
-          "When measurement is switched on, the site runs a self-hosted counter on Cloudflare Workers. It counts page views and specific click types (call, WhatsApp, directions, and review) and keeps a random identifier in the browser’s local storage so new and returning visitors can be told apart. There are no cookies, no advertising pixels, and no collection of form contents, phone numbers, or link addresses. An IP address is used only as a daily hash for abuse limiting and is not stored. Data is kept for up to 13 months. The site respects Global Privacy Control and Do Not Track, and you can turn measurement off or on with the button below.",
+          "When measurement is switched on, the site runs a self-hosted counter on Cloudflare, its hosting provider, to learn how many people use the site and which pages. It counts page views, clicks on call, directions (Waze or Google Maps), WhatsApp or Google review, and a successful callback request. To tell new and returning visitors apart, your browser keeps a random identifier and the dates of your first and last visit, and these are sent with each count. We store the identifier only in hashed form. There are no cookies, advertising pixels, form contents, phone numbers, or link addresses. An IP address is used only for abuse limiting, as a hash deleted within 2 days. Counts are kept for up to 13 months and are not shared with anyone except Cloudflare as the hosting provider. The site respects Global Privacy Control and Do Not Track, and you can turn measurement off or on with the button below.",
         ],
         optOut: true,
       },

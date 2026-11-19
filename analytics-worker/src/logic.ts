@@ -42,6 +42,18 @@ export async function sha256Hex(input: string): Promise<string> {
   return [...new Uint8Array(dig)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/** Days to keep hashed-IP rate_limits rows (cron purge). Never store IP-derived values in events. */
+export const RATE_LIMIT_RETENTION_DAYS = 2;
+
+/**
+ * Hash for events.v_hash. Identified visitors get sha256(pepper|v).
+ * No-id events (GPC/DNT/opt-out/callback) store NULL — never an IP-derived value.
+ */
+export async function visitorHashForEvent(v: string | undefined, pepper: string): Promise<string | null> {
+  if (!v) return null;
+  return sha256Hex(`${pepper}|${v}`);
+}
+
 export function parseBody(raw: string): { ok: true; event: ParsedEvent } | { ok: false; error: string } {
   if (raw.length > 512) return { ok: false, error: "too_large" };
   let json: IncomingEvent;

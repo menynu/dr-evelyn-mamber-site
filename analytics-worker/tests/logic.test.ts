@@ -4,6 +4,9 @@ import {
   isBot,
   originAllowed,
   parseBody,
+  RATE_LIMIT_RETENTION_DAYS,
+  sha256Hex,
+  visitorHashForEvent,
   weekOverWeekChange,
   type EventRow,
 } from "../src/logic";
@@ -69,13 +72,27 @@ describe("helpers", () => {
       { ts: now - 900, day: "2026-11-19", event: "tel", path: "/", v_hash: "v1", f: "2026-11-19", l: "2026-11-19", s: null, n: null },
       { ts: now - 800, day: "2026-11-19", event: "pageview", path: "/contact/", v_hash: "v2", f: "2026-10-01", l: "2026-11-19", s: 1, n: null },
       { ts: now - 700, day: "2026-11-19", event: "whatsapp", path: "/contact/", v_hash: "v2", f: "2026-10-01", l: "2026-11-19", s: null, n: null },
+      // no-id events (v_hash NULL) must not invent an IP-derived identity in metrics
+      { ts: now - 600, day: "2026-11-19", event: "pageview", path: "/privacy/", v_hash: null, f: null, l: null, s: 1, n: null },
+      { ts: now - 500, day: "2026-11-19", event: "callback_form_success", path: "/contact/thanks/", v_hash: null, f: null, l: null, s: null, n: "new" },
     ];
     const start = now - 7 * 24 * 60 * 60 * 1000;
     const stats = computeWeekly(rows, start, now + 1);
     expect(stats.uniqueVisitors).toBe(2);
-    expect(stats.visits).toBe(2);
+    expect(stats.visits).toBe(3);
     expect(stats.clicks.tel.total).toBe(1);
     expect(stats.leads.distinct).toBe(2);
+    expect(stats.leads.total).toBe(3);
     expect(weekOverWeekChange(10, 5)).toBe(100);
+  });
+
+  it("stores NULL v_hash for no-id events and never hashes IP into events", async () => {
+    expect(RATE_LIMIT_RETENTION_DAYS).toBe(2);
+    expect(await visitorHashForEvent(undefined, "pepper")).toBeNull();
+    expect(await visitorHashForEvent("", "pepper")).toBeNull();
+    const id = "a".repeat(32);
+    const hashed = await visitorHashForEvent(id, "pepper");
+    expect(hashed).toBe(await sha256Hex(`pepper|${id}`));
+    expect(hashed).not.toMatch(/noid|ip/i);
   });
 });

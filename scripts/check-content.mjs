@@ -174,13 +174,16 @@ if (!thanks.includes("תודה, קיבלנו את הפנייה ונחזור אל
 const privacy = await readFile(path.join(root, "dist/privacy/index.html"), "utf8");
 const privacyEn = await readFile(path.join(root, "dist/en/privacy/index.html"), "utf8");
 if (!privacy.includes("FormSubmit")) failures.push("Hebrew privacy page does not describe the callback form");
-if (!privacy.includes("Cloudflare Workers") || !privacyEn.includes("Cloudflare Workers")) {
+if (!privacy.includes("Cloudflare") || !privacyEn.includes("Cloudflare")) {
   failures.push("privacy pages are missing the self-hosted measurement section");
+}
+if (!privacy.includes("2 ימים") || !privacyEn.includes("2 days")) {
+  failures.push("privacy pages are missing the 2-day IP-hash retention note");
 }
 if (!privacy.includes('data-mmb-optout') || !privacyEn.includes("data-mmb-optout")) {
   failures.push("privacy pages are missing the measurement opt-out toggle");
 }
-if (!privacy.includes("13") || !privacyEn.includes("13 months")) {
+if (!privacy.includes("13 חודשים") || !privacyEn.includes("13 months")) {
   failures.push("privacy pages are missing the 13-month retention note");
 }
 if (!he.includes("כתיבת ביקורת בגוגל")) failures.push("Hebrew home is missing the review call to action");

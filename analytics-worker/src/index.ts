@@ -5,7 +5,9 @@ import {
   minuteKey,
   originAllowed,
   parseBody,
+  RATE_LIMIT_RETENTION_DAYS,
   sha256Hex,
+  visitorHashForEvent,
   weekBounds,
   weekOverWeekChange,
   type EventRow,
@@ -30,11 +32,6 @@ const cors = (origin: string | null) => ({
   "Access-Control-Allow-Headers": "content-type",
   "Access-Control-Max-Age": "86400",
 });
-
-async function hashVisitor(v: string | undefined, pepper: string, day: string, ipHash: string): Promise<string> {
-  if (v) return sha256Hex(`${pepper}|${v}`);
-  return sha256Hex(`${pepper}|noid|${day}|${ipHash}`);
-}
 
 async function ipDailyHash(request: Request, secret: string, day: string): Promise<string> {
   const ip =
@@ -86,6 +83,7 @@ async function handleEvent(request: Request, env: Env): Promise<Response> {
     .bind(mk)
     .run();
 
+  // Cap ~60/day: identified visitors by hashed id; no-id by ipHash in rate_limits only.
   const maxDay = Number(env.MAX_EVENTS_PER_DAY || "60");
   const rateKey = ev.v ? await sha256Hex(`v|${env.V_PEPPER}|${ev.v}|${day}`) : `ip|${ipHash}`;
   const rate = await env.DB.prepare("SELECT count FROM rate_limits WHERE key = ? AND day = ?")
@@ -104,9 +102,12 @@ async function handleEvent(request: Request, env: Env): Promise<Response> {
     .bind(rateKey, day)
     .run();
 
-  const vHash = await hashVisitor(ev.v, env.V_PEPPER || "dev-pepper", day, ipHash);
+  // events.v_hash is never IP-derived: identified → sha256(pepper|v); no-id → NULL.
+  const vHash = await visitorHashForEvent(ev.v, env.V_PEPPER || "dev-pepper");
 
-  if (ev.e !== "pageview" && ev.e !== "callback_form_success") {
+  // Click↔pageview window only for identified visitors. No-id clicks skip this
+  // (nothing IP-linked is stored in events; abuse is limited via rate_limits only).
+  if (vHash && ev.e !== "pageview" && ev.e !== "callback_form_success") {
     const recent = await env.DB.prepare(
       "SELECT 1 as ok FROM events WHERE v_hash = ? AND event = 'pageview' AND ts >= ? LIMIT 1",
     )
@@ -192,7 +193,8 @@ async function handleDashboard(request: Request, env: Env): Promise<Response> {
 async function purgeOld(env: Env): Promise<void> {
   const cutoff = Date.now() - 13 * 30 * 24 * 60 * 60 * 1000;
   await env.DB.prepare("DELETE FROM events WHERE ts < ?").bind(cutoff).run();
-  const oldDay = dayKey(Date.now() - 3 * 24 * 60 * 60 * 1000);
+  // N = RATE_LIMIT_RETENTION_DAYS (2): hashed-IP keys must not linger.
+  const oldDay = dayKey(Date.now() - RATE_LIMIT_RETENTION_DAYS * 24 * 60 * 60 * 1000);
   await env.DB.prepare("DELETE FROM rate_limits WHERE day < ?").bind(oldDay).run();
   await env.DB.prepare("DELETE FROM write_spikes WHERE minute_key < ?")
     .bind(minuteKey(Date.now() - 2 * 60 * 60 * 1000))

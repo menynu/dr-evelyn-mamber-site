@@ -218,40 +218,40 @@ try {
   // Empty collector: rebuild check is separate; here assert no beacon when cfg missing on a synthetic page
   // Covered by unit/build tests when collectorUrl empty.
 
-  // axe on privacy + no 320 overflow + no console errors
-  await withPage(browser, "/privacy/", async (page, _b, errors) => {
+  async function axeAndLayout(page, label, errors) {
     await page.setViewportSize({ width: 320, height: 720 });
     const overflow = await page.evaluate(() => {
       const doc = document.documentElement;
       return Math.max(doc.scrollWidth, document.body.scrollWidth) > 320 + 1;
     });
-    assert.equal(overflow, false, "320px overflow on privacy");
+    assert.equal(overflow, false, `320px overflow on ${label}`);
     const axePath = path.join(root, "node_modules/axe-core/axe.min.js");
-    let axeOk = false;
     try {
       await page.addScriptTag({ path: axePath });
       const results = await page.evaluate(async () => await window.axe.run(document, { resultTypes: ["violations"] }));
-      assert.equal(results.violations.length, 0, JSON.stringify(results.violations, null, 2));
-      axeOk = true;
+      assert.equal(results.violations.length, 0, `${label}: ${JSON.stringify(results.violations, null, 2)}`);
+      console.log(`axe 0 on ${label}`);
     } catch (e) {
-      if (String(e).includes("axe")) throw e;
-      // axe-core optional if not installed — try CDN-free skip only when module missing
-      const missing = String(e).includes("ENOENT");
-      if (!missing) throw e;
-      console.warn("axe-core not installed; skipping axe assert");
+      if (String(e).includes("ENOENT")) console.warn(`axe-core missing; skipped on ${label}`);
+      else throw e;
     }
-    if (axeOk) console.log("axe 0 on privacy");
-    assert.deepEqual(errors, [], `console errors: ${errors.join(" | ")}`);
-  });
+    assert.deepEqual(errors, [], `${label} console errors: ${errors.join(" | ")}`);
+  }
 
-  await withPage(browser, "/en/privacy/", async (page, _b, errors) => {
-    await page.setViewportSize({ width: 320, height: 720 });
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > 321);
-    assert.equal(overflow, false);
-    assert.deepEqual(errors, [], `console errors: ${errors.join(" | ")}`);
-    const pressed = await page.locator("[data-mmb-optout]").getAttribute("aria-pressed");
-    assert.ok(pressed === "true" || pressed === "false");
-  });
+  for (const pathName of ["/privacy/", "/en/privacy/", "/contact/thanks/", "/en/contact/thanks/"]) {
+    await withPage(browser, pathName, async (page, _b, errors) => {
+      await axeAndLayout(page, pathName, errors);
+      if (pathName.includes("privacy")) {
+        const pressed = await page.locator("[data-mmb-optout]").getAttribute("aria-pressed");
+        assert.ok(pressed === "true" || pressed === "false");
+      }
+      if (pathName === "/en/contact/thanks/") {
+        const text = await page.locator(".lede").innerText();
+        assert.match(text, /If you sent the WhatsApp message/);
+        assert.match(await page.locator(".urgent").innerText(), /Urgent/);
+      }
+    });
+  }
 
   console.log("playwright analytics checks passed");
 } finally {
