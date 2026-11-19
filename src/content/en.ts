@@ -383,7 +383,6 @@ export const copyEn = {
         heading: "Requests",
         paragraphs: [
           "To ask about access, correction, or deletion of information you gave the clinic directly (by phone, WhatsApp, or email), call {{phone}}. The website itself does not keep a copy of the booking form.",
-          "This page explains how the site works. It should be reviewed with legal advice before publication.",
         ],
       },
     ],
