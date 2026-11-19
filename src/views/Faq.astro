@@ -52,7 +52,7 @@ const topics = ["practical", "visit", "care", "urgent"] as const;
                     <p>{entry.a}</p>
                     {entry.id === "address" && <NavActions locale={locale} />}
                     {entry.id === "review" && <ReviewCta locale={locale} showText={false} />}
-                    {entry.href && <p><a href={localePath(locale, entry.href)}>{t.readMore}</a></p>}
+                    {entry.href && <p class="link-block"><a href={localePath(locale, entry.href)}>{t.readMore}</a></p>}
                   </div>
                 </details>
               ))}
