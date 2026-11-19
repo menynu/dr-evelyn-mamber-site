@@ -125,8 +125,8 @@ export const copyEn = {
     kicker: "The clinic",
     title: "About {{doctor}}",
     lede: "{{doctor}}, {{role}}, sees children in {{city}}. Visits are built around a clear explanation for parents and a pace a child can manage.",
-    factsTitle: "What this page includes",
-    facts: "This page has the background that was given for the website. Questions about training and experience are welcome when you call.",
+    factsTitle: "Questions about background",
+    facts: "You are welcome to ask about training and experience when you call to book.",
     approachTitle: "How care is approached",
     approach: [
       { title: "Explain first", text: "What the exam shows, and what can be done, is said before anything starts." },
