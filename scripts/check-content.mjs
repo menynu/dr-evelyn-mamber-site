@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import analytics from "../site.analytics.mjs";
 import clinic from "../clinic.config.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
@@ -100,8 +101,21 @@ if (!en.includes("Hezkiyahu HaMelech")) failures.push("English home is missing t
 if (he.includes("עמק רפאים") || he.includes("Emek Refaim") || en.includes("Emek Refaim") || he.includes("Hizkiyahu")) {
   failures.push("a home page still mentions a rejected address");
 }
-if (!clinic.googleSiteVerification && (he.includes("google-site-verification") || en.includes("google-site-verification"))) {
-  failures.push("verification meta is present while the config token is empty");
+if (!analytics.gscVerification && (he.includes("google-site-verification") || en.includes("google-site-verification"))) {
+  failures.push("verification meta is present while site.analytics.mjs gscVerification is empty");
+}
+if (he.includes("cloudflareinsights") || en.includes("cloudflareinsights")) {
+  if (!analytics.cfBeaconToken) {
+    failures.push("Cloudflare beacon appears in HTML while site.analytics.mjs cfBeaconToken is empty");
+  }
+}
+const robots = await readFile(path.join(root, "dist/robots.txt"), "utf8");
+if (!/^Sitemap:\s*https:\/\/\S+sitemap-index\.xml\s*$/m.test(robots)) {
+  failures.push("robots.txt is missing a Sitemap line with an absolute sitemap-index.xml URL");
+}
+const sitemapIndex = await readFile(path.join(root, "dist/sitemap-index.xml"), "utf8").catch(() => "");
+if (!sitemapIndex.includes("<sitemapindex") || !sitemapIndex.includes("https://")) {
+  failures.push("sitemap-index.xml is missing or has no absolute https URLs");
 }
 if (clinic.isRegisteredSpecialist) {
   if (!he.includes("מומחית לרפואת שיניים לילדים")) failures.push("Hebrew home is missing the registered title");
@@ -157,7 +171,11 @@ if (!thanks.includes('dir="rtl"')) failures.push("Thank-you page is not rtl");
 if (!thanks.includes("noindex")) failures.push("Thank-you page should be noindex");
 if (!thanks.includes("תודה, קיבלנו את הפנייה ונחזור אליכם בהקדם")) failures.push("Thank-you page is missing the confirmation");
 const privacy = await readFile(path.join(root, "dist/privacy/index.html"), "utf8");
+const privacyEn = await readFile(path.join(root, "dist/en/privacy/index.html"), "utf8");
 if (!privacy.includes("FormSubmit")) failures.push("Hebrew privacy page does not describe the callback form");
+if (!privacy.includes("Cloudflare Web Analytics") || !privacyEn.includes("Cloudflare Web Analytics")) {
+  failures.push("privacy pages are missing the cookieless analytics section");
+}
 if (!he.includes("כתיבת ביקורת בגוגל")) failures.push("Hebrew home is missing the review call to action");
 if (!en.includes("Write a Google review")) failures.push("English home is missing the review call to action");
 if (he.includes("/dr-evelyn-mamber-site") && !process.env.GITHUB_PAGES_BASE) {

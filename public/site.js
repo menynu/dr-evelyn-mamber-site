@@ -1,3 +1,4 @@
+import { setupAnalytics, track } from "./analytics.js";
 import { answerById, answerQuestion } from "./bot-core.js";
 import {
   isDesktopNavigation,
@@ -90,6 +91,7 @@ function setupForm() {
       return;
     }
     if (error instanceof HTMLElement) error.hidden = true;
+    track("callback_submit");
     const text = fillTemplate(form.dataset.template || "", values);
     const base = form.dataset.whatsapp || "";
     if (base) {
@@ -461,6 +463,7 @@ function setupShare() {
   });
 }
 
+setupAnalytics();
 setupNav();
 setupMap();
 setupForm();

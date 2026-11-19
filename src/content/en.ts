@@ -350,7 +350,13 @@ export const copyEn = {
       {
         heading: "What the site does not collect",
         paragraphs: [
-          "There is no user account, no clinic database behind the site, and no advertising or analytics tool. The form is not submitted to this website's server.",
+          "There is no user account and no clinic database behind the site. There are no advertising tools and no marketing cookies. The callback form is not stored on this website.",
+        ],
+      },
+      {
+        heading: "How the site measures use",
+        paragraphs: [
+          "When measurement is switched on, the site uses Cloudflare Web Analytics to count page views in aggregate only: no cookies, no persistent user identifier, and no advertising pixels. To produce these counts, Cloudflare processes technical data such as IP address and browser type, and does not use it to identify visitors.",
         ],
       },
       {

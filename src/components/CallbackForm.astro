@@ -329,6 +329,14 @@ const times = ["בוקר", "צהריים", "אחה״צ"];
           showFieldError(phone, messages.phone);
           phone.focus();
         }
+        return;
+      }
+      // Cookieless conversion hook (name + path only). Defined in public/analytics.js.
+      try {
+        const track = (window as Window & { __mamberTrack?: (name: string) => void }).__mamberTrack;
+        track?.("callback_submit");
+      } catch {
+        // never block submit
       }
     });
   }
