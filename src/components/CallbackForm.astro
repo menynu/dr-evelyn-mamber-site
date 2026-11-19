@@ -271,6 +271,11 @@ const times = ["בוקר", "צהריים", "אחה״צ"];
         const field = event.target;
         if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement)) return;
         validateField(field);
+        // preventDefault cancels the browser's auto-focus; focus the first
+        // invalid field once per submit attempt (mouse or Enter).
+        if (field === form.querySelector(":invalid")) {
+          field.focus();
+        }
       },
       true,
     );
