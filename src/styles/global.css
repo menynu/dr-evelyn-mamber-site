@@ -857,6 +857,7 @@ textarea { min-height: 6rem; resize: vertical; }
   display: flex;
   align-items: center;
   justify-content: center;
+  column-gap: 0.3em;
   min-height: 2.75rem;
   border-radius: 999px;
   text-decoration: none;
