@@ -482,6 +482,7 @@ main a:not(.btn):not(.card) { text-decoration-thickness: 1px; text-underline-off
 .split {
   display: grid;
   gap: 1.25rem;
+  align-items: start;
 }
 
 .stack { display: grid; gap: 0.9rem; }
