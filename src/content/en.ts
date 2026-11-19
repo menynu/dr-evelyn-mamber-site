@@ -248,7 +248,7 @@ export const copyEn = {
     emailSubmit: "Send by email",
     error: "To send, fill in every field and tick the consent line.",
     template:
-      "Hello, I would like to book a visit.\nParent's name: [[parent]]\nPhone: [[phone]]\nChild's age: [[age]]\nPreferred time: [[time]]",
+      "Parent's name: [[parent]]\nPhone: [[phone]]\nChild's age: [[age]]\nPreferred time: [[time]]",
     emailSubject: "Request to book a visit",
     mapButton: "Show the map",
     mapTitle: "Map of the clinic address",
@@ -361,6 +361,7 @@ export const copyEn = {
         paragraphs: [
           "The fields are a parent's name, a phone number, the child's age, and a preferred time. There is no field for a complaint, a diagnosis, or medicines. {{formPrivacy}}",
           "Please don't write medical details in the message. What the dentist needs to know is said by phone or at the clinic.",
+          "On the English contact page, Send opens WhatsApp (a Meta service) with the details you entered. Nothing is sent until you press send in WhatsApp. The message goes to the clinic's number and is used only to arrange an appointment. WhatsApp handles the message under Meta's privacy policy, and the clinic keeps it in order to get back to you. This website does not keep a copy. You can call {{phone}} instead.",
         ],
       },
       {

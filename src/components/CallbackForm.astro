@@ -1,5 +1,6 @@
 ---
 import { getCopy } from "../content";
+import { clinic } from "../lib/config";
 import { phonePattern } from "../lib/phone.js";
 import { absoluteUrl, localePath } from "../lib/paths";
 import UrgentNotice from "./UrgentNotice.astro";
@@ -115,6 +116,8 @@ const times = ["בוקר", "צהריים", "אחה״צ"];
     </div>
     <span class="field-error" id="callback-consent-error" role="alert" hidden></span>
     <p class="hint">
+      הפרטים עוברים דרך FormSubmit, שירות חיצוני לשליחת טפסים, ונשלחים בדוא״ל למפעיל האתר, שמעביר אותם למרפאה לצורך תיאום תור בלבד. אין חובה חוקית למסור אותם, אבל בלעדיהם לא נוכל לחזור אליכם. לעיון בפרטים או לתיקונם: <span class="ltr">{clinic.phoneDisplay}</span>.
+      {" "}
       <a class="consent-link" href={privacyHref}>מדיניות הפרטיות</a>
     </p>
 

@@ -49,7 +49,7 @@ function formPrivacy(locale: Locale): string {
   const wa = clinic.whatsappReady && clinic.whatsappNumber;
   const email = clinic.email.trim();
   if (locale === "he") {
-    return "השליחה מעבירה את הפרטים לשירות FormSubmit, והוא שולח אותם בדוא״ל למרפאה. האתר אינו שומר עותק. אחרי השליחה נפתח עמוד אימות של FormSubmit, ואחר כך עמוד תודה באתר. האתר אינו מוסיף עוגיות שיווק.";
+    return "השליחה מעבירה את הפרטים לשירות FormSubmit, והוא שולח אותם בדוא״ל למפעיל האתר, שמעביר אותם למרפאה. האתר אינו שומר עותק. אחרי השליחה נפתח עמוד אימות של FormSubmit, ואחר כך עמוד תודה באתר. האתר אינו מוסיף עוגיות שיווק.";
   }
   if (wa && email) {
     return "Send opens WhatsApp or email on your device. From that moment the conversation is with that provider, under their policy, and it is not stored on this site.";
@@ -72,7 +72,7 @@ export function contactTitle(locale: Locale): string {
 export function contactLede(locale: Locale): string {
   const canSend = (clinic.whatsappReady && clinic.whatsappNumber) || clinic.email.trim();
   if (locale === "he") {
-    return "בטופס יש רק שם הורה, טלפון, גיל הילד או הילדה, וזמן נוח לשיחה. אין שדה למידע רפואי. הפרטים נשלחים בדוא״ל למרפאה, והאתר לא שומר עותק.";
+    return "בטופס יש רק שם הורה, טלפון, גיל הילד או הילדה, וזמן נוח לשיחה. אין שדה למידע רפואי. הפרטים נשלחים בדוא״ל למפעיל האתר, שמעביר אותם למרפאה, והאתר לא שומר עותק.";
   }
   if (canSend) {
     return "The form asks only for a parent's name, a phone number, the child's age, and a preferred time. There is no medical field, and the site does not store what you type.";
