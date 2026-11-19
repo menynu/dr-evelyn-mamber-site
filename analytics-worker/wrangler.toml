@@ -2,10 +2,16 @@ name = "mamber-analytics"
 main = "src/index.ts"
 compatibility_date = "2025-11-01"
 
+# Do not enable Workers Logs or Logpush (avoids Cloudflare storing IP/UA from requests).
+logpush = false
+
+[observability]
+enabled = false
+
 [[d1_databases]]
 binding = "DB"
-database_name = "mamber-analytics"
-# Replace after: wrangler d1 create mamber-analytics
+database_name = "mmb-analytics"
+# Replace after: wrangler d1 create mmb-analytics --jurisdiction eu
 database_id = "REPLACE_WITH_D1_DATABASE_ID"
 
 [triggers]
