@@ -877,6 +877,7 @@ textarea { min-height: 6rem; resize: vertical; }
     border-radius: 0;
   }
   .bot-launcher[aria-expanded="true"] { display: none; }
+  body:has(form.form) .bot-launcher:not([aria-expanded="true"]) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
