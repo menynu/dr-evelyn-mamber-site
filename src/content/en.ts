@@ -311,7 +311,7 @@ export const copyEn = {
         list: [
           "Headings, navigation, a main region, and a skip link.",
           "Hebrew pages are right to left and English pages are left to right, with a language set on each page.",
-          "Color contrast checked for text and buttons, and a visible keyboard focus.",
+          "Color contrast for text and buttons, based on an internal check, and a visible keyboard focus.",
           "Forms have labels, and they do not ask for medical information.",
           "The automated assistant is a dialog that works from the keyboard, with topic buttons.",
           "Sending directions to a phone is a dialog with a labelled field, an error message, and keyboard close.",
@@ -324,6 +324,7 @@ export const copyEn = {
         list: [
           "The Google map is a third-party service and loads only after a click. It may be less accessible than this site. The address and a directions link work without the map.",
           "WhatsApp, Waze, and Google Maps are external apps. You can always book by phone, and the address is written on the site without them.",
+          "The borders of form fields do not yet have enough contrast, and this is being fixed.",
           "Physical access details for the clinic building will be published here once they are confirmed. Until then, ask by phone.",
         ],
       },
