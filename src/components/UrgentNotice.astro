@@ -1,8 +1,23 @@
 ---
 import { clinic } from "../lib/config";
+import type { Locale } from "../lib/role";
+
+interface Props {
+  locale?: Locale;
+}
+
+const { locale = "he" } = Astro.props;
+const isHe = locale === "he";
+const label = isHe ? "מקרה דחוף" : "Urgent case";
 ---
-<aside class="urgent" aria-label="מקרה דחוף">
-  <p>
-    מקרה דחוף (חבלה, דימום, נפיחות)? התקשרו עכשיו ל-<a class="ltr" href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a>, ואם אין מענה – <a href="tel:101">מד״א 101</a>.
-  </p>
+<aside class="urgent" aria-label={label}>
+  {isHe ? (
+    <p>
+      מקרה דחוף (חבלה בשיניים, דימום, נפיחות, קושי בנשימה או בבליעה)? התקשרו עכשיו ל-<a class="ltr" href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a>, ואם אין מענה – פנו לחדר מיון או התקשרו ל-<a href="tel:101">מד״א 101</a>.
+    </p>
+  ) : (
+    <p>
+      Urgent (dental injury, bleeding, swelling, trouble breathing or swallowing)? Call <a class="ltr" href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a> now. If nobody answers, go to an emergency room or call <a href="tel:101">MADA at 101</a>.
+    </p>
+  )}
 </aside>
