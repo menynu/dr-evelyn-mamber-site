@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { createRequire } from "node:module";
 import { classifyLink } from "../public/link-classify.js";
 import { track } from "../public/analytics.js";
 import {
@@ -13,7 +12,6 @@ import {
 import analytics from "../site.analytics.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
-const require = createRequire(import.meta.url);
 
 assert.equal(classifyLink("tel:+97225611949"), "tel");
 assert.equal(classifyLink("https://wa.me/97225611949"), "whatsapp");
@@ -79,7 +77,7 @@ if (emptyHtml) {
 const src = await readFile(path.join(root, "public/analytics.js"), "utf8");
 let minified;
 try {
-  const esbuild = require("esbuild");
+  const esbuild = await import("esbuild");
   minified = (await esbuild.transform(src, { loader: "js", minify: true, format: "esm" })).code;
 } catch {
   const r = spawnSync("npx", ["esbuild", path.join(root, "public/analytics.js"), "--minify", "--format=esm"], {
