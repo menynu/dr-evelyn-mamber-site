@@ -13,6 +13,10 @@ const subject = "בקשה לשיחה חוזרת – אתר ממבר";
 const nextUrl = absoluteUrl("/contact/thanks/");
 const privacyHref = localePath("he", "/privacy/");
 const phoneError = "הקלידו מספר טלפון ישראלי.";
+const parentError = "מלאו את שם ההורה.";
+const ageError = "בחרו את גיל הילד/ה.";
+const timeError = "בחרו זמן נוח.";
+const consentError = "כדי לשלוח צריך לאשר את שורת ההסכמה.";
 const medicalNote = "אין צורך לפרט כאן מידע רפואי. נדבר על הכול בטלפון.";
 const times = ["בוקר", "צהריים", "אחה״צ"];
 ---
@@ -26,6 +30,10 @@ const times = ["בוקר", "צהריים", "אחה״צ"];
     accept-charset="UTF-8"
     data-callback-form
     data-phone-error={phoneError}
+    data-parent-error={parentError}
+    data-age-error={ageError}
+    data-time-error={timeError}
+    data-consent-error={consentError}
     data-required-error={t.contact.error}
     aria-labelledby="callback-title"
     aria-describedby="callback-medical-note"
@@ -39,7 +47,16 @@ const times = ["בוקר", "צהריים", "אחה״צ"];
 
     <label class="field">
       <span>{t.contact.parentLabel} ({t.required})</span>
-      <input name="שם הורה" type="text" autocomplete="name" maxlength="80" required />
+      <input
+        id="callback-parent"
+        name="שם הורה"
+        type="text"
+        autocomplete="name"
+        maxlength="80"
+        required
+        aria-describedby="callback-parent-error"
+      />
+      <span class="field-error" id="callback-parent-error" role="alert" hidden></span>
     </label>
 
     <label class="field">
@@ -56,28 +73,31 @@ const times = ["בוקר", "צהריים", "אחה״צ"];
         spellcheck="false"
         maxlength="22"
         pattern={phonePattern}
-        aria-describedby="callback-phone-hint"
+        aria-describedby="callback-phone-hint callback-phone-error"
         required
       />
       <span class="hint" id="callback-phone-hint">
         מספר ישראלי, למשל <span class="ltr">050-1234567</span> או <span class="ltr">02-1234567</span>.
       </span>
+      <span class="field-error" id="callback-phone-error" role="alert" hidden></span>
     </label>
 
     <label class="field">
       <span>{t.contact.ageLabel} ({t.required})</span>
-      <select name="גיל הילד/ה" required>
+      <select id="callback-age" name="גיל הילד/ה" required aria-describedby="callback-age-error">
         <option value="">{t.contact.agePlaceholder}</option>
         {t.contact.ages.map((age) => <option value={age}>{age}</option>)}
       </select>
+      <span class="field-error" id="callback-age-error" role="alert" hidden></span>
     </label>
 
     <label class="field">
       <span>{t.contact.timeLabel} ({t.required})</span>
-      <select name="זמן נוח לשיחה" required>
+      <select id="callback-time" name="זמן נוח לשיחה" required aria-describedby="callback-time-error">
         <option value="">{t.contact.timePlaceholder}</option>
         {times.map((time) => <option value={time}>{time}</option>)}
       </select>
+      <span class="field-error" id="callback-time-error" role="alert" hidden></span>
     </label>
 
     <p class="hint" id="callback-medical-note">{medicalNote}</p>
@@ -89,9 +109,11 @@ const times = ["בוקר", "צהריים", "אחה״צ"];
         type="checkbox"
         value={t.contact.consent}
         required
+        aria-describedby="callback-consent-error"
       />
       <label for="callback-consent">{t.contact.consent}</label>
     </div>
+    <span class="field-error" id="callback-consent-error" role="alert" hidden></span>
     <p class="hint">
       <a class="consent-link" href={privacyHref}>מדיניות הפרטיות</a>
     </p>
@@ -113,79 +135,198 @@ const times = ["בוקר", "צהריים", "אחה״צ"];
   const form = document.querySelector("[data-callback-form]");
   if (form instanceof HTMLFormElement) {
     const phone = form.querySelector("#callback-phone");
-    const error = form.querySelector("[data-form-error]");
-    const phoneMessage = form.dataset.phoneError || "";
-    const requiredMessage = form.dataset.requiredError || "";
+    const parent = form.querySelector("#callback-parent");
+    const age = form.querySelector("#callback-age");
+    const time = form.querySelector("#callback-time");
+    const consent = form.querySelector("#callback-consent");
+    const sharedError = form.querySelector("[data-form-error]");
 
-    const showError = (message: string) => {
-      if (!(error instanceof HTMLElement)) return;
-      error.hidden = false;
-      error.textContent = message;
+    const messages = {
+      phone: form.dataset.phoneError || "",
+      parent: form.dataset.parentError || "",
+      age: form.dataset.ageError || "",
+      time: form.dataset.timeError || "",
+      consent: form.dataset.consentError || "",
     };
 
-    const clearError = () => {
-      if (!(error instanceof HTMLElement)) return;
-      error.hidden = true;
-      error.textContent = "";
+    const fieldError = (field: Element | null) => {
+      if (!(field instanceof HTMLElement)) return null;
+      const id = field.getAttribute("aria-describedby")?.split(/\s+/).find((token) => token.endsWith("-error"));
+      if (!id) return null;
+      const node = form.querySelector(`#${CSS.escape(id)}`);
+      return node instanceof HTMLElement ? node : null;
     };
+
+    const hideShared = () => {
+      if (!(sharedError instanceof HTMLElement)) return;
+      sharedError.hidden = true;
+      sharedError.textContent = "";
+    };
+
+    const showFieldError = (field: HTMLInputElement | HTMLSelectElement, message: string) => {
+      const box = fieldError(field);
+      if (box) {
+        box.hidden = false;
+        box.textContent = message;
+      }
+      field.setAttribute("aria-invalid", "true");
+      field.setCustomValidity(message);
+      hideShared();
+    };
+
+    const clearFieldError = (field: HTMLInputElement | HTMLSelectElement) => {
+      const box = fieldError(field);
+      if (box) {
+        box.hidden = true;
+        box.textContent = "";
+      }
+      field.removeAttribute("aria-invalid");
+      field.setCustomValidity("");
+    };
+
+    const phoneOk = () => {
+      if (!(phone instanceof HTMLInputElement)) return true;
+      const value = phone.value.trim();
+      if (value === "") return false;
+      return isIsraeliPhone(value);
+    };
+
+    const syncPhone = () => {
+      if (!(phone instanceof HTMLInputElement)) return true;
+      const value = phone.value.trim();
+      if (value !== "" && !isIsraeliPhone(value)) {
+        showFieldError(phone, messages.phone);
+        return false;
+      }
+      if (value !== "") clearFieldError(phone);
+      else {
+        const box = fieldError(phone);
+        if (box) {
+          box.hidden = true;
+          box.textContent = "";
+        }
+        phone.removeAttribute("aria-invalid");
+        phone.setCustomValidity("");
+      }
+      return true;
+    };
+
+    const validateField = (field: HTMLInputElement | HTMLSelectElement) => {
+      if (field === phone) {
+        if (!(phone instanceof HTMLInputElement)) return true;
+        if (!phone.value.trim()) {
+          showFieldError(phone, messages.phone);
+          return false;
+        }
+        if (!isIsraeliPhone(phone.value)) {
+          showFieldError(phone, messages.phone);
+          return false;
+        }
+        clearFieldError(phone);
+        return true;
+      }
+      if (field === parent) {
+        if (!(parent instanceof HTMLInputElement)) return true;
+        if (!parent.value.trim()) {
+          showFieldError(parent, messages.parent);
+          return false;
+        }
+        clearFieldError(parent);
+        return true;
+      }
+      if (field === age) {
+        if (!(age instanceof HTMLSelectElement)) return true;
+        if (!age.value) {
+          showFieldError(age, messages.age);
+          return false;
+        }
+        clearFieldError(age);
+        return true;
+      }
+      if (field === time) {
+        if (!(time instanceof HTMLSelectElement)) return true;
+        if (!time.value) {
+          showFieldError(time, messages.time);
+          return false;
+        }
+        clearFieldError(time);
+        return true;
+      }
+      if (field === consent) {
+        if (!(consent instanceof HTMLInputElement)) return true;
+        if (!consent.checked) {
+          showFieldError(consent, messages.consent);
+          return false;
+        }
+        clearFieldError(consent);
+        return true;
+      }
+      return true;
+    };
+
+    form.addEventListener(
+      "invalid",
+      (event) => {
+        event.preventDefault();
+        const field = event.target;
+        if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement)) return;
+        validateField(field);
+        // preventDefault cancels the browser's auto-focus; focus the first
+        // invalid field once per submit attempt (mouse or Enter).
+        if (field === form.querySelector(":invalid")) {
+          field.focus();
+        }
+      },
+      true,
+    );
 
     if (phone instanceof HTMLInputElement) {
-      const syncPhone = () => {
-        const value = phone.value.trim();
-        const formatBad = value !== "" && !isIsraeliPhone(value);
-        phone.setCustomValidity(formatBad ? phoneMessage : "");
-        if (!formatBad) {
-          phone.removeAttribute("aria-invalid");
-          phone.setAttribute("aria-describedby", "callback-phone-hint");
-        }
-        return !formatBad;
-      };
-
       phone.addEventListener("input", () => {
-        if (syncPhone() && error instanceof HTMLElement && error.textContent === phoneMessage) clearError();
-      });
-
-      form.addEventListener(
-        "invalid",
-        (event) => {
-          const field = event.target;
-          if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement)) return;
-          if (field === phone && phone.value.trim() && !isIsraeliPhone(phone.value)) {
-            phone.setCustomValidity(phoneMessage);
-            phone.setAttribute("aria-invalid", "true");
-            phone.setAttribute("aria-describedby", "callback-phone-hint callback-error");
-            showError(phoneMessage);
-            return;
-          }
-          if (field.validity.valueMissing) field.setCustomValidity(requiredMessage);
-          if (error instanceof HTMLElement && error.hidden) showError(requiredMessage);
-        },
-        true,
-      );
-
-      form.addEventListener("input", (event) => {
-        const field = event.target;
-        if (field === phone) return;
-        if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) field.setCustomValidity("");
-      });
-
-      form.addEventListener("change", (event) => {
-        const field = event.target;
-        if (field instanceof HTMLSelectElement || (field instanceof HTMLInputElement && field.type === "checkbox")) {
-          field.setCustomValidity("");
-        }
-      });
-
-      form.addEventListener("submit", (event) => {
-        if (!syncPhone()) {
-          event.preventDefault();
-          phone.setAttribute("aria-invalid", "true");
-          phone.setAttribute("aria-describedby", "callback-phone-hint callback-error");
-          showError(phoneMessage);
-          phone.focus();
-          phone.reportValidity();
-        }
+        syncPhone();
       });
     }
+
+    form.addEventListener("input", (event) => {
+      const field = event.target;
+      if (field === phone) return;
+      if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
+        if (field.validity.valid || (field instanceof HTMLInputElement && field.type !== "checkbox" && field.value.trim())) {
+          clearFieldError(field);
+        }
+      }
+    });
+
+    form.addEventListener("change", (event) => {
+      const field = event.target;
+      if (field instanceof HTMLSelectElement || (field instanceof HTMLInputElement && field.type === "checkbox")) {
+        validateField(field);
+        if (field instanceof HTMLInputElement && field.type === "checkbox" && field.checked) clearFieldError(field);
+        if (field instanceof HTMLSelectElement && field.value) clearFieldError(field);
+      }
+    });
+
+    form.addEventListener("submit", (event) => {
+      const fields = [parent, phone, age, time, consent].filter(
+        (node): node is HTMLInputElement | HTMLSelectElement =>
+          node instanceof HTMLInputElement || node instanceof HTMLSelectElement,
+      );
+      let firstInvalid: HTMLInputElement | HTMLSelectElement | null = null;
+      for (const field of fields) {
+        const ok = validateField(field);
+        if (!ok && !firstInvalid) firstInvalid = field;
+      }
+      if (firstInvalid) {
+        event.preventDefault();
+        firstInvalid.focus();
+        return;
+      }
+      if (!phoneOk()) {
+        event.preventDefault();
+        if (phone instanceof HTMLInputElement) {
+          showFieldError(phone, messages.phone);
+          phone.focus();
+        }
+      }
+    });
   }
 </script>

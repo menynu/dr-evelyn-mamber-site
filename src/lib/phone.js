@@ -4,8 +4,10 @@
  * hyphens, dots, and parentheses. Rejects letters and non-Israeli numbers.
  */
 
+// Parentheses inside character classes are escaped so the HTML pattern
+// attribute stays valid under Chrome's `v` flag (unicodeSets).
 const phonePattern =
-  "\\s*(?:\\(\\s*)?(?:(?:\\+|00)?972[\\s\\-.()]*|0)(?:[23489]|5[0-58]|7[2-46-9])\\s*\\)?(?:[\\s\\-.()]*\\d){7}\\s*";
+  "\\s*(?:\\(\\s*)?(?:(?:\\+|00)?972[\\s\\-.\\(\\)]*|0)(?:[23489]|5[0-58]|7[2-46-9])\\s*\\)?(?:[\\s\\-.\\(\\)]*\\d){7}\\s*";
 
 export { phonePattern };
 

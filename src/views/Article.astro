@@ -44,7 +44,7 @@ const related = t.articles.filter((item) => item.slug !== article.slug);
       if (block.type === "note") return <p class="note">{block.text}</p>;
       return <p>{block.text}</p>;
     })}
-    <p><a href={localePath(locale, "/tips/")}>{t.backToTips}</a></p>
+    <p class="link-block"><a href={localePath(locale, "/tips/")}>{t.backToTips}</a></p>
   </article>
   <section class="section section-alt" aria-labelledby="related-title">
     <div class="container">

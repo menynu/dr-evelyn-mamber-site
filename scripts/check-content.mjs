@@ -136,8 +136,21 @@ if (!contact.includes("זמן נוח לשיחה")) failures.push("Hebrew contact
 if (!contact.includes("אחה״צ")) failures.push("Hebrew contact is missing the afternoon option");
 if (!contact.includes("אין צורך לפרט כאן מידע רפואי. נדבר על הכול בטלפון.")) failures.push("Hebrew contact is missing the medical note");
 if (!contact.includes("אני מסכים/ה שהפרטים ישמשו רק לחזרה אליי לתיאום תור")) failures.push("Hebrew contact is missing the consent line");
-if (!contact.includes("מקרה דחוף (חבלה, דימום, נפיחות)?")) failures.push("Hebrew contact is missing the urgent notice");
+if (!contact.includes("מקרה דחוף (חבלה בשיניים, דימום, נפיחות, קושי בנשימה או בבליעה)?")) failures.push("Hebrew contact is missing the urgent notice");
 if (!contact.includes("tel:+97225611949") || !contact.includes("tel:101")) failures.push("Hebrew contact is missing the urgent phone links");
+if (!contact.includes("חדר מיון")) failures.push("Hebrew contact urgent notice is missing the emergency room referral");
+if (!contactEn.includes("Urgent (dental injury, bleeding, swelling, trouble breathing or swallowing)?")) failures.push("English contact is missing the urgent notice");
+if (!contactEn.includes("tel:+97225611949") || !contactEn.includes("tel:101")) failures.push("English contact is missing the urgent phone links");
+if (!contactEn.includes("emergency room")) failures.push("English contact urgent notice is missing the emergency room referral");
+{
+  const urgentBeforeHero = (html) => {
+    const urgent = html.indexOf('class="urgent"');
+    const heroArt = html.indexOf('class="hero-art"');
+    return urgent !== -1 && heroArt !== -1 && urgent < heroArt;
+  };
+  if (!urgentBeforeHero(he)) failures.push("Hebrew home is missing an urgent notice before the hero art");
+  if (!urgentBeforeHero(en)) failures.push("English home is missing an urgent notice before the hero art");
+}
 if (contact.includes("<textarea")) failures.push("Hebrew contact has a free-text field");
 const thanks = await readFile(path.join(root, "dist/contact/thanks/index.html"), "utf8");
 if (!thanks.includes('dir="rtl"')) failures.push("Thank-you page is not rtl");

@@ -2,6 +2,7 @@
 import HeroArt from "../components/HeroArt.astro";
 import Icon from "../components/Icon.astro";
 import ReviewCta from "../components/ReviewCta.astro";
+import UrgentNotice from "../components/UrgentNotice.astro";
 import { getCopy, getFaq } from "../content";
 import { clinic } from "../lib/config";
 import { localePath } from "../lib/paths";
@@ -47,6 +48,7 @@ const whyIcons = ["users", "leaf", "shield"];
           <span>{addressLine(locale)}</span>
           <a href="#directions">{t.home.directionsLink}</a>
         </p>
+        <UrgentNotice locale={locale} />
         </div>
       <div class="hero-art">
         <HeroArt />
@@ -194,7 +196,7 @@ const whyIcons = ["users", "leaf", "shield"];
             </summary>
             <div class="answer">
               <p>{entry.a}</p>
-              {entry.href && <p><a href={localePath(locale, entry.href)}>{t.readMore}</a></p>}
+              {entry.href && <p class="link-block"><a href={localePath(locale, entry.href)}>{t.readMore}</a></p>}
             </div>
           </details>
         ))}
