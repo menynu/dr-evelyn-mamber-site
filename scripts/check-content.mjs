@@ -192,7 +192,7 @@ if (!privacy.includes("בשרת המונה") || !privacyEn.includes("The counter
 if (!privacy.includes("בעלת מסד הנתונים") || !privacyEn.includes("database owner")) {
   failures.push("privacy measurement section must name the clinic as database owner");
 }
-if (!privacy.includes("באיחוד האירופי") || !privacyEn.includes("outside Israel (in the EU)")) {
+if (!privacy.includes("באיחוד האירופי") || !privacyEn.includes("in the EU, outside Israel")) {
   failures.push("privacy measurement section must note EU / abroad storage");
 }
 if (privacy.includes("אצלנו") || privacyEn.includes("We store")) {
