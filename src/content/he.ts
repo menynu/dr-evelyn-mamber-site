@@ -239,6 +239,7 @@ export const copyHe = {
     timeLabel: "זמן נוח לשיחה",
     timePlaceholder: "בחרו",
     timeHint: "יום ושעה נוחים. בלי תיאור רפואי.",
+    times: ["בוקר", "צהריים", "אחה״צ"],
     consent: "{{formChannel}}",
     submit: "שליחת הבקשה",
     emailSubmit: "שליחה בדוא״ל",

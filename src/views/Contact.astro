@@ -52,7 +52,18 @@ const privacyHref = localePath(locale, "/privacy/");
             </label>
             <label class="field">
               <span>{t.contact.phoneField} ({t.required})</span>
-              <input name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" required />
+              <input
+                name="phone"
+                type="tel"
+                inputmode="tel"
+                dir="ltr"
+                autocomplete="tel"
+                autocapitalize="off"
+                autocorrect="off"
+                spellcheck="false"
+                maxlength="20"
+                required
+              />
             </label>
             <label class="field">
               <span>{t.contact.ageLabel} ({t.required})</span>
@@ -63,7 +74,10 @@ const privacyHref = localePath(locale, "/privacy/");
             </label>
             <label class="field">
               <span>{t.contact.timeLabel} ({t.required})</span>
-              <input name="time" type="text" maxlength="80" required placeholder={t.contact.timePlaceholder} aria-describedby="time-hint" />
+              <select name="time" required aria-describedby="time-hint">
+                <option value="">{t.contact.timePlaceholder}</option>
+                {t.contact.times.map((time) => <option value={time}>{time}</option>)}
+              </select>
               <span class="hint" id="time-hint">{t.contact.timeHint}</span>
             </label>
             <label class="check">
@@ -75,7 +89,7 @@ const privacyHref = localePath(locale, "/privacy/");
               {" "}
               <a class="consent-link" href={privacyHref}>Privacy policy</a>
             </p>
-            <p class="form-error" data-form-error hidden></p>
+            <p class="form-error" role="alert" data-form-error hidden></p>
             <button class="btn btn-primary" type="submit">{wa ? t.contact.submit : t.call}</button>
             {clinic.email && (
               <button
