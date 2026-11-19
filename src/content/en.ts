@@ -342,6 +342,8 @@ export const copyEn = {
     kicker: "Privacy",
     title: "Privacy policy",
     lede: "The site gives information and opens a way to book. It is not a store of medical records.",
+    optOutLabel: "Turn off measurement on this site",
+    optInLabel: "Turn on measurement on this site",
     sections: [
       {
         heading: "Who is responsible",
@@ -356,8 +358,9 @@ export const copyEn = {
       {
         heading: "How the site measures use",
         paragraphs: [
-          "When measurement is switched on, the site uses Cloudflare Web Analytics to count page views in aggregate only: no cookies, no persistent user identifier, and no advertising pixels. To produce these counts, Cloudflare processes technical data such as IP address and browser type, and does not use it to identify visitors.",
+          "When measurement is switched on, the site runs a self-hosted counter on Cloudflare, its hosting provider, to learn how many people use the site and which pages. It counts page views, clicks on call, directions (Waze or Google Maps), WhatsApp or Google review, and a successful callback request. The counter stores page views only as aggregate counts per page, with no identifier. To tell new and returning visitors apart, your browser keeps a random identifier that is replaced every 90 days together with the first- and last-visit dates; these are sent with visits and clicks. The counter stores each visit and click with the hashed identifier and the date, without the page. There are no cookies, advertising pixels, form contents, phone numbers, or link addresses. An IP address is used only for abuse limiting, as a hash deleted within 2 days. All data on the counter is deleted after 90 days and is not shared with anyone except Cloudflare as the hosting provider. The site respects Global Privacy Control and Do Not Track, and you can turn measurement off or on with the button below.",
         ],
+        optOut: true,
       },
       {
         heading: "Sending directions from a computer",

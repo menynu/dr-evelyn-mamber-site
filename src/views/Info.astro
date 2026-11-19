@@ -95,6 +95,20 @@ function wrapPhoneLtr(parts: ParagraphPart[]): ParagraphPart[] {
             {section.list.map((item) => <li>{item}</li>)}
           </ul>
         )}
+        {"optOut" in section && section.optOut && page === "privacy" && "optOutLabel" in content && "optInLabel" in content && (
+          <p>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-mmb-optout
+              aria-pressed="false"
+              data-label-on={content.optOutLabel}
+              data-label-off={content.optInLabel}
+            >
+              {content.optOutLabel}
+            </button>
+          </p>
+        )}
       </section>
     ))}
     {page === "a11y" && clinic.accessibilityCoordinator && (

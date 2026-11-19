@@ -1,0 +1,23 @@
+---
+import UrgentNotice from "../../../components/UrgentNotice.astro";
+import { clinic } from "../../../lib/config";
+import { localePath } from "../../../lib/paths";
+import Base from "../../../layouts/Base.astro";
+---
+<Base
+  locale="en"
+  title={`Thank you | ${clinic.doctorNameEn}`}
+  description="Thank you. If you sent the WhatsApp message, the clinic will get back to you."
+  path="/contact/thanks/"
+  noindex
+>
+  <div class="container page-intro thanks">
+    <h1>Thank you</h1>
+    <p class="lede">Thank you. If you sent the WhatsApp message, the clinic will get back to you.</p>
+    <UrgentNotice locale="en" />
+    <div class="cta-row">
+      <a class="btn btn-primary" href={localePath("en", "/")}>Home</a>
+      <a class="btn btn-secondary" href={localePath("en", "/contact/")}>Back to contact</a>
+    </div>
+  </div>
+</Base>

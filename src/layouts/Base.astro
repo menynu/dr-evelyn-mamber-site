@@ -45,8 +45,10 @@ const enUrl = absoluteUrl(localePath("en", path));
 const schema = buildSchema({ locale, path, title, description, kind, breadcrumbs, faq, article });
 const ogLocale = locale === "he" ? "he_IL" : "en_US";
 const ogAlt = locale === "he" ? "en_US" : "he_IL";
-const { cfBeaconToken, gscVerification } = resolveAnalytics();
-const cfBeaconAttr = cfBeaconToken ? JSON.stringify({ token: cfBeaconToken }) : "";
+const { collectorUrl, gscVerification } = resolveAnalytics();
+const mmbCfg = collectorUrl
+  ? JSON.stringify({ u: collectorUrl, b: import.meta.env.BASE_URL || "/" })
+  : "";
 ---
 <!doctype html>
 <html lang={locale === "he" ? "he" : "en"} dir={locale === "he" ? "rtl" : "ltr"}>
@@ -97,13 +99,9 @@ const cfBeaconAttr = cfBeaconToken ? JSON.stringify({ token: cfBeaconToken }) : 
     <noscript>
       <p class="noscript-note">{t.footerFine} <a href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a></p>
     </noscript>
-    <script type="module" src={`${import.meta.env.BASE_URL}site.js`}></script>
-    {cfBeaconToken && (
-      <script
-        defer
-        src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon={cfBeaconAttr}
-      ></script>
+    {mmbCfg && (
+      <script id="mmb-cfg" type="application/json" set:html={mmbCfg} />
     )}
+    <script type="module" src={`${import.meta.env.BASE_URL}site.js`}></script>
   </body>
 </html>

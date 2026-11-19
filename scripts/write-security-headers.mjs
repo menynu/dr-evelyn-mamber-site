@@ -1,7 +1,7 @@
 /**
  * Regenerates public/_headers and the CSP line in vercel.json from
- * site.analytics.mjs. Cloudflare hosts appear in CSP only when the beacon
- * token is non-empty (so an empty token never allows those origins).
+ * site.analytics.mjs. The collector origin is added to connect-src only when
+ * collectorUrl / COLLECTOR_URL is non-empty.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -28,4 +28,4 @@ if (cspHeader) {
   writeFileSync(vercelPath, `${JSON.stringify(vercel, null, 2)}\n`, "utf8");
 }
 
-console.log(`security headers written (beacon CSP ${csp.includes("cloudflareinsights") ? "on" : "off"})`);
+console.log(`security headers written (collector connect-src ${csp.includes("connect-src") ? "on" : "off"})`);
