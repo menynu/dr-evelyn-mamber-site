@@ -14,6 +14,7 @@
   --gold-deep: #6b4e16;
   --urgent-bg: #fbf4f1;
   --urgent-line: #e7c8bf;
+  --field-border: #8b7a68;
   --shadow: 0 16px 40px rgba(26, 38, 36, 0.08);
   --radius: 1.25rem;
   --font: "Rubik", "Rubik Fallback", "Arial Hebrew", "Noto Sans Hebrew", Arial, "Liberation Sans", sans-serif;
@@ -399,6 +400,11 @@ html.nav-mode-mobile .when-desktop { display: none; }
 .urgent p { color: var(--ink); }
 .urgent a:not(.btn) { font-weight: 700; white-space: nowrap; }
 
+.hero .urgent {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+}
+
 .band {
   background: var(--pine);
   color: #f6f1e7;
@@ -465,7 +471,7 @@ main a:not(.btn):not(.card) { text-decoration-thickness: 1px; text-underline-off
   color: var(--muted);
   font-size: 0.95rem;
 }
-.crumbs a, .footer-links a, .link-row a:not(.btn) {
+.crumbs a, .footer-links a, .link-row a:not(.btn), .link-block a {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
@@ -482,6 +488,7 @@ main a:not(.btn):not(.card) { text-decoration-thickness: 1px; text-underline-off
 .split {
   display: grid;
   gap: 1.25rem;
+  align-items: start;
 }
 
 .stack { display: grid; gap: 0.9rem; }
@@ -540,7 +547,7 @@ input, select, textarea {
   font: inherit;
   color: inherit;
   background: #fff;
-  border: 1px solid #cdbba8;
+  border: 1px solid var(--field-border);
   border-radius: 0.8rem;
   min-height: 3rem;
   padding: 0.6rem 0.75rem;
@@ -552,15 +559,22 @@ textarea { min-height: 6rem; resize: vertical; }
 .check {
   display: flex;
   gap: 0.7rem;
-  align-items: flex-start;
+  align-items: center;
+  min-height: 2.75rem;
   font-size: 0.98rem;
 }
 .check input {
-  width: 1.25rem;
-  height: 1.25rem;
-  min-height: 1.25rem;
-  margin-top: 0.2rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  min-height: 1.5rem;
+  margin-top: 0;
+  flex: none;
   accent-color: var(--pine);
+}
+.check label, .check > span {
+  flex: 1;
+  padding-block: 0.35rem;
+  cursor: pointer;
 }
 
 .form-error {
@@ -569,6 +583,17 @@ textarea { min-height: 6rem; resize: vertical; }
   border-radius: 0.75rem;
   padding: 0.7rem 0.8rem;
   margin: 0;
+}
+
+.field-error {
+  display: block;
+  color: var(--clay);
+  font-size: 0.92rem;
+  margin-top: 0.35rem;
+}
+
+.field-error[hidden] {
+  display: none;
 }
 
 .map-panel {
@@ -877,6 +902,7 @@ textarea { min-height: 6rem; resize: vertical; }
     border-radius: 0;
   }
   .bot-launcher[aria-expanded="true"] { display: none; }
+  body:has(form.form) .bot-launcher:not([aria-expanded="true"]) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

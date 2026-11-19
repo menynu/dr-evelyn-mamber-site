@@ -65,15 +65,18 @@ const invalid = [
 ];
 
 const pattern = new RegExp(`^(?:${phonePattern})$`);
+const patternV = new RegExp(`^(?:${phonePattern})$`, "v");
 
 for (const input of valid) {
   assert.equal(isIsraeliPhone(input), true, input);
   assert.equal(pattern.test(input), true, `pattern ${input}`);
+  assert.equal(patternV.test(input), true, `pattern v ${input}`);
 }
 
 for (const input of invalid) {
   assert.equal(isIsraeliPhone(input), false, input);
   assert.equal(pattern.test(input), false, `pattern ${input}`);
+  assert.equal(patternV.test(input), false, `pattern v ${input}`);
 }
 
 console.log("phone checks passed");
