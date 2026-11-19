@@ -35,7 +35,7 @@ const crumbs = [
         <p>{t.emergencyBody}</p>
         <p><a class="btn btn-clay" href={`tel:${clinic.phoneTel}`}>{t.emergencyCall}</a></p>
       </aside>
-      <p><a href={localePath(locale, "/contact/")}>{t.nav.find((item) => item.id === "contact")?.label}</a></p>
+      <p class="link-block"><a href={localePath(locale, "/contact/")}>{t.nav.find((item) => item.id === "contact")?.label}</a></p>
     </div>
   </div>
 </Base>

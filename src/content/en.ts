@@ -57,7 +57,7 @@ export const copyEn = {
     },
     tips: {
       title: "For parents | {{doctor}}",
-      description: "Short guides: the first visit, brushing by age, and what to do if a tooth is injured.",
+      description: "Short guides: the first visit, brushing by age, and a child's dental injury: who to call right away.",
     },
     faq: {
       title: "FAQ | {{doctor}}",
@@ -125,8 +125,8 @@ export const copyEn = {
     kicker: "The clinic",
     title: "About {{doctor}}",
     lede: "{{doctor}}, {{role}}, sees children in {{city}}. Visits are built around a clear explanation for parents and a pace a child can manage.",
-    factsTitle: "What this page includes",
-    facts: "This page has the background that was given for the website. Questions about training and experience are welcome when you call.",
+    factsTitle: "Questions about background",
+    facts: "You are welcome to ask about training and experience when you call to book.",
     approachTitle: "How care is approached",
     approach: [
       { title: "Explain first", text: "What the exam shows, and what can be done, is said before anything starts." },
@@ -312,7 +312,7 @@ export const copyEn = {
         list: [
           "Headings, navigation, a main region, and a skip link.",
           "Hebrew pages are right to left and English pages are left to right, with a language set on each page.",
-          "Color contrast checked for text and buttons, and a visible keyboard focus.",
+          "Color contrast for text and buttons, based on an internal check, and a visible keyboard focus.",
           "Forms have labels, and they do not ask for medical information.",
           "The automated assistant is a dialog that works from the keyboard, with topic buttons.",
           "Sending directions to a phone is a dialog with a labelled field, an error message, and keyboard close.",
@@ -384,7 +384,6 @@ export const copyEn = {
         heading: "Requests",
         paragraphs: [
           "To ask about access, correction, or deletion of information you gave the clinic directly (by phone, WhatsApp, or email), call {{phone}}. The website itself does not keep a copy of the booking form.",
-          "This page explains how the site works. It should be reviewed with legal advice before publication.",
         ],
       },
     ],
@@ -480,52 +479,22 @@ export const copyEn = {
     },
     {
       slug: "knocked-out-tooth",
-      title: "What to do if a tooth is knocked out or broken",
-      description: "First steps for parents, and when you need to go immediately.",
-      minutes: 5,
+      title: "A child's dental injury: who to call right away",
+      description: "A child injured a tooth? Who to call right away, and when to go to an emergency room.",
+      minutes: 1,
       blocks: [
         {
           type: "note",
-          text: "This is general first-aid information. It does not replace a call to the clinic or a trip to an emergency room.",
+          text: "This is general information only and is not medical advice. It does not replace a call to the clinic or a visit to an emergency room.",
         },
-        { type: "h2", text: "First" },
+        { type: "h2", text: "Call right away" },
         {
           type: "ul",
           items: [
-            "Stay as calm as you can. A child settles when the adult does.",
-            "Call the clinic immediately: {{phone}}.",
-            "If there is heavy bleeding, a head injury, confusion, vomiting, or trouble breathing — go to an emergency room or call MADA at 101. Don't wait.",
+            "After any injury to the teeth, including a tooth that was knocked out, broken, or loosened, call the clinic right away: {{phone}}.",
+            "If nobody answers, or there is bleeding, swelling, trouble breathing or swallowing, a head injury, confusion, or vomiting, go to an emergency room or call MADA at 101.",
+            "The website cannot assess this from a distance, so it does not give care instructions.",
           ],
-        },
-        { type: "h2", text: "A baby tooth that came out" },
-        {
-          type: "p",
-          text: "Do not put a baby tooth back in the socket. Replanting it can harm the permanent tooth forming underneath. Keep the tooth if you found it, press gently with a clean pad, and come to be seen.",
-        },
-        { type: "h2", text: "A permanent tooth that came out" },
-        {
-          type: "p",
-          text: "A permanent tooth that came out whole is worth trying to save, and time matters.",
-        },
-        {
-          type: "ul",
-          items: [
-            "Hold the tooth by the white part (the crown), not the root.",
-            "If it is dirty, rinse it for a few seconds in milk or saline. Don't scrub it and don't use soap.",
-            "If the child is calm and able, you can try to ease it back into place with gentle pressure. If you are not sure, don't force it.",
-            "Until you arrive, keep the tooth in milk, or inside the cheek of an older child who will not swallow it. Not in water.",
-            "Go straight to the clinic or an emergency room.",
-          ],
-        },
-        { type: "h2", text: "If you are not sure which kind of tooth it is" },
-        {
-          type: "p",
-          text: "Don't put it back. Bring the tooth and go immediately. A short delay is better than replanting a baby tooth.",
-        },
-        { type: "h2", text: "A tooth that broke but is still in the mouth" },
-        {
-          type: "p",
-          text: "Keep the fragment moist in milk or saline, and call the clinic. Even a small break is worth an exam.",
         },
       ],
     },
