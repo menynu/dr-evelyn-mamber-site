@@ -356,8 +356,7 @@ export const copyEn = {
       {
         heading: "How the site measures use",
         paragraphs: [
-          "When measurement is switched on, the site uses Cloudflare Web Analytics: aggregate page views only, with no cookies, no user identifier, and no advertising pixels.",
-          "Clicks on call, WhatsApp, directions (Waze or Google Maps), and Google review links, and a successful callback request, are counted by event type only. The link address, phone number, and form contents are not collected.",
+          "When measurement is switched on, the site uses Cloudflare Web Analytics to count page views in aggregate only: no cookies, no persistent user identifier, and no advertising pixels. To produce these counts, Cloudflare processes technical data such as IP address and browser type, and does not use it to identify visitors.",
         ],
       },
       {
