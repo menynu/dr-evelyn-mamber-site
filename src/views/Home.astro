@@ -6,7 +6,7 @@ import UrgentNotice from "../components/UrgentNotice.astro";
 import { getCopy, getFaq } from "../content";
 import { clinic } from "../lib/config";
 import { localePath } from "../lib/paths";
-import { whatsappHref } from "../lib/public";
+import { addressLine, whatsappHref } from "../lib/public";
 import type { Locale } from "../lib/role";
 import Base from "../layouts/Base.astro";
 
@@ -45,6 +45,8 @@ const whyIcons = ["users", "leaf", "shield"];
           )}
         </div>
         <p class="hero-links">
+          <span>{addressLine(locale)}</span>
+          <a href="#directions">{t.home.directionsLink}</a>
           <a href={`${localePath(locale, "/contact/")}#${locale === "he" ? "callback-form" : "booking-form"}`}>
             {t.home.callbackLink}
           </a>

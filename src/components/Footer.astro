@@ -21,7 +21,9 @@ const name = locale === "he" ? clinic.doctorNameHe : clinic.doctorNameEn;
       <strong>{name}</strong>
       <p>{roleTitle(locale)}</p>
       <p>{addressLine(locale)}</p>
-      <NavActions locale={locale} />
+      <div id="directions">
+        <NavActions locale={locale} />
+      </div>
       <p><a class="ltr" href={`tel:${clinic.phoneTel}`}>{clinic.phoneDisplay}</a></p>
     </div>
     <nav aria-label={t.footerNavLabel}>
