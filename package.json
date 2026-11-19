@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 --port 4391",
-    "build": "astro build",
+    "build": "node scripts/write-security-headers.mjs && astro build",
     "preview": "astro preview --host 0.0.0.0 --port 4392",
     "check": "astro check",
-    "test": "node scripts/test-bot.mjs && node scripts/test-nav-share.mjs && node scripts/test-phone.mjs",
-    "verify": "node scripts/check-content.mjs && node scripts/test-bot.mjs && node scripts/test-nav-share.mjs"
+    "test": "node scripts/test-bot.mjs && node scripts/test-nav-share.mjs && node scripts/test-phone.mjs && node scripts/test-analytics.mjs",
+    "verify": "node scripts/check-content.mjs && node scripts/test-bot.mjs && node scripts/test-nav-share.mjs && node scripts/test-analytics.mjs && node scripts/test-analytics-build.mjs"
   },
   "engines": {
     "node": ">=22"
